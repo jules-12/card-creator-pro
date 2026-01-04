@@ -2,87 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Couleurs du drapeau du Bénin */
+    --benin-green: 153 100% 27%;
+    --benin-yellow: 48 97% 53%;
+    --benin-red: 354 85% 49%;
+    
+    /* Couleurs institutionnelles */
+    --institutional-blue: 210 100% 35%;
+    --institutional-blue-dark: 210 100% 25%;
+    
+    /* Fond dégradé de la carte */
+    --card-gradient-start: 165 40% 85%;
+    --card-gradient-end: 180 50% 75%;
+    
+    /* Base design system */
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 210 100% 35%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 153 100% 27%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 48 97% 53%;
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 85% 49%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 210 100% 35%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 153 100% 27%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 48 97% 53%;
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 85% 49%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 212 27% 84%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -100,6 +105,137 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+  }
+}
+
+@layer components {
+  /* Bandes du drapeau béninois */
+  .benin-flag-stripe {
+    @apply flex w-full;
+  }
+
+  .benin-flag-stripe > div {
+    @apply flex-1 h-full;
+  }
+
+  .stripe-green {
+    background-color: hsl(var(--benin-green));
+  }
+
+  .stripe-yellow {
+    background-color: hsl(var(--benin-yellow));
+  }
+
+  .stripe-red {
+    background-color: hsl(var(--benin-red));
+  }
+
+  /* Carte professionnelle */
+  .professional-card {
+    width: 10cm;
+    height: 7cm;
+    background: linear-gradient(135deg, hsl(var(--card-gradient-start)) 0%, hsl(var(--card-gradient-end)) 100%);
+    @apply relative overflow-hidden shadow-xl;
+  }
+
+  .card-header {
+    background: linear-gradient(180deg, hsl(var(--institutional-blue)) 0%, hsl(var(--institutional-blue-dark)) 100%);
+  }
+
+  .card-title-main {
+    font-family: 'Montserrat', sans-serif;
+    @apply text-white font-extrabold tracking-wide;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  }
+
+  .card-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    @apply text-white font-semibold;
+  }
+
+  .card-section-title {
+    color: hsl(var(--benin-red));
+    font-family: 'Montserrat', sans-serif;
+    @apply font-bold;
+  }
+
+  .card-field-label {
+    color: hsl(var(--institutional-blue));
+    font-family: 'Montserrat', sans-serif;
+    @apply font-semibold;
+  }
+
+  .card-field-value {
+    @apply font-semibold;
+  }
+
+  .card-footer-text {
+    @apply text-xs text-primary;
+  }
+
+  /* Boutons personnalisés */
+  .btn-benin-primary {
+    background: linear-gradient(135deg, hsl(var(--benin-green)) 0%, hsl(153 100% 22%) 100%);
+    @apply text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all duration-300;
+  }
+
+  .btn-benin-primary:hover {
+    @apply shadow-xl transform -translate-y-0.5;
+    background: linear-gradient(135deg, hsl(153 100% 30%) 0%, hsl(var(--benin-green)) 100%);
+  }
+
+  .btn-benin-secondary {
+    background: linear-gradient(135deg, hsl(var(--institutional-blue)) 0%, hsl(var(--institutional-blue-dark)) 100%);
+    @apply text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all duration-300;
+  }
+
+  .btn-benin-secondary:hover {
+    @apply shadow-xl transform -translate-y-0.5;
+  }
+
+  /* Zone de drop */
+  .drop-zone {
+    @apply border-2 border-dashed border-primary/50 rounded-xl p-8 text-center transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(210 20% 94%) 100%);
+  }
+
+  .drop-zone:hover, .drop-zone.dragging {
+    @apply border-primary bg-primary/5;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2s infinite;
+  }
+}
+
+/* Styles d'impression */
+@media print {
+  .professional-card {
+    width: 10cm !important;
+    height: 7cm !important;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
