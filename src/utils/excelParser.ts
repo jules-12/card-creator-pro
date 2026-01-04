@@ -11,23 +11,40 @@ const normalizeColumnName = (name: string): string => {
     .replace(/[^a-z0-9]/g, ''); // Garder seulement lettres et chiffres
 };
 
-// Mapping des colonnes possibles
+// Mapping des colonnes possibles - TRÈS TOLÉRANT
 const columnMappings: Record<string, string[]> = {
-  npc: ['nnpc', 'npc', 'numero', 'numeronpc', 'no', 'n'],
-  nom: ['nom', 'name', 'lastname', 'nomdefamille'],
-  prenoms: ['prenoms', 'prenom', 'firstname', 'firstnames', 'prénoms', 'prénom'],
-  telephone: ['telephone', 'tel', 'phone', 'mobile', 'téléphone', 'tél'],
-  arrondissement: ['arrondissement', 'district', 'quartier', 'zone', 'arr'],
+  npc: ['nnpc', 'npc', 'numero', 'numeronpc', 'no', 'n', 'num', 'code', 'id', 'ref', 'matricule', 'numcontribuable', 'numéro'],
+  nom: ['nom', 'name', 'lastname', 'nomdefamille', 'family', 'surname', 'nomfamille', 'nomsdefamille'],
+  prenoms: ['prenoms', 'prenom', 'firstname', 'firstnames', 'prénoms', 'prénom', 'given', 'givenname', 'first', 'prenomnom'],
+  telephone: ['telephone', 'tel', 'phone', 'mobile', 'téléphone', 'tél', 'gsm', 'contact', 'numero', 'numtel', 'phonenumber', 'cell', 'portable'],
+  arrondissement: ['arrondissement', 'district', 'quartier', 'zone', 'arr', 'locality', 'secteur', 'commune', 'location', 'adresse', 'address', 'lieu'],
 };
 
+// Fonction de recherche de colonne très tolérante
 const findColumnKey = (header: string): string | null => {
+  if (!header || typeof header !== 'string') return null;
+  
   const normalized = normalizeColumnName(header);
   
+  // Correspondance exacte ou partielle
   for (const [key, variants] of Object.entries(columnMappings)) {
-    if (variants.some(v => normalized.includes(v) || v.includes(normalized))) {
-      return key;
+    for (const variant of variants) {
+      // Correspondance exacte
+      if (normalized === variant) return key;
+      // Le header contient le variant
+      if (normalized.includes(variant)) return key;
+      // Le variant contient le header (pour les headers courts)
+      if (variant.includes(normalized) && normalized.length >= 2) return key;
     }
   }
+  
+  // Recherche par mots-clés spécifiques
+  if (normalized.includes('npc') || (normalized.includes('n') && normalized.length <= 3)) return 'npc';
+  if (normalized.includes('nom') && !normalized.includes('pre')) return 'nom';
+  if (normalized.includes('pre') || normalized.includes('first')) return 'prenoms';
+  if (normalized.includes('tel') || normalized.includes('phone')) return 'telephone';
+  if (normalized.includes('arr') || normalized.includes('district') || normalized.includes('zone')) return 'arrondissement';
+  
   return null;
 };
 
