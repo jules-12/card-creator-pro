@@ -1,7 +1,9 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Contributor } from '@/types/contributor';
 import BeninFlagStripe from './BeninFlagStripe';
+import logoGauche from '@/assets/logo-gauche.png';
+import logoDroit from '@/assets/logo-droit.png';
 
 interface ProfessionalCardProps {
   contributor: Contributor;
@@ -33,11 +35,14 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
 
         {/* En-tête bleu avec logos */}
         <div className="card-header px-3 py-1.5 flex items-center justify-between">
-          {/* Logo République (placeholder) */}
-          <div className="w-12 h-12 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">🏛️</span>
-            </div>
+          {/* Logo Ville de Cotonou (gauche) */}
+          <div className="w-14 h-14 flex items-center justify-center">
+            <img 
+              src={logoGauche} 
+              alt="Ville de Cotonou" 
+              className="w-12 h-12 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </div>
 
           {/* Titres centraux */}
@@ -53,11 +58,13 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
             </p>
           </div>
 
-          {/* Logo Ville (placeholder) */}
-          <div className="w-12 h-12 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">🌴</span>
-            </div>
+          {/* Logo République du Bénin (droite) */}
+          <div className="w-14 h-14 flex items-center justify-center">
+            <img 
+              src={logoDroit} 
+              alt="République du Bénin" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
         </div>
 
