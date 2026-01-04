@@ -37,11 +37,11 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
         <div className="card-header px-3 py-1.5 flex items-center justify-between">
           {/* Logo Ville de Cotonou (gauche) */}
           <div className="w-14 h-14 flex items-center justify-center">
-            <img 
-              src={logoGauche} 
-              alt="Ville de Cotonou" 
+            <img
+              src={logoGauche}
+              alt="Ville de Cotonou"
               className="w-12 h-12 object-contain"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              loading="lazy"
             />
           </div>
 
