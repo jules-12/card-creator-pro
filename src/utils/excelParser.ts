@@ -11,40 +11,41 @@ const normalizeColumnName = (name: string): string => {
     .replace(/[^a-z0-9]/g, ''); // Garder seulement lettres et chiffres
 };
 
-// Mapping des colonnes possibles - TRÈS TOLÉRANT
+// Mapping des colonnes possibles (normalisées via normalizeColumnName)
+// Objectif: tolérance maximale aux variations: accents, ponctuation, "N°", pluriels, etc.
 const columnMappings: Record<string, string[]> = {
-  npc: ['nnpc', 'npc', 'numero', 'numeronpc', 'no', 'n', 'num', 'code', 'id', 'ref', 'matricule', 'numcontribuable', 'numéro'],
-  nom: ['nom', 'name', 'lastname', 'nomdefamille', 'family', 'surname', 'nomfamille', 'nomsdefamille'],
-  prenoms: ['prenoms', 'prenom', 'firstname', 'firstnames', 'prénoms', 'prénom', 'given', 'givenname', 'first', 'prenomnom'],
-  telephone: ['telephone', 'tel', 'phone', 'mobile', 'téléphone', 'tél', 'gsm', 'contact', 'numero', 'numtel', 'phonenumber', 'cell', 'portable'],
-  arrondissement: ['arrondissement', 'district', 'quartier', 'zone', 'arr', 'locality', 'secteur', 'commune', 'location', 'adresse', 'address', 'lieu'],
+  npc: [
+    'npc',
+    'nnpc',
+    'numeronpc',
+    'numnpc',
+    'numcontribuable',
+    'matricule',
+    'idnpc',
+  ],
+  nom: ['nom', 'nomdefamille', 'familyname', 'lastname', 'surname'],
+  prenoms: ['prenom', 'prenoms', 'firstname', 'givenname', 'given'],
+  telephone: ['telephone', 'tel', 'phone', 'mobile', 'portable', 'gsm', 'numtel', 'phonenumber'],
+  arrondissement: ['arrondissement', 'arrond', 'arr', 'quartier', 'district', 'zone', 'arrondisment'],
 };
 
-// Fonction de recherche de colonne très tolérante
 const findColumnKey = (header: string): string | null => {
-  if (!header || typeof header !== 'string') return null;
-  
-  const normalized = normalizeColumnName(header);
-  
-  // Correspondance exacte ou partielle
+  const normalizedHeader = normalizeColumnName(header);
+  if (!normalizedHeader) return null;
+
   for (const [key, variants] of Object.entries(columnMappings)) {
     for (const variant of variants) {
-      // Correspondance exacte
-      if (normalized === variant) return key;
-      // Le header contient le variant
-      if (normalized.includes(variant)) return key;
-      // Le variant contient le header (pour les headers courts)
-      if (variant.includes(normalized) && normalized.length >= 2) return key;
+      const normalizedVariant = normalizeColumnName(variant);
+
+      // Exact match
+      if (normalizedHeader === normalizedVariant) return key;
+
+      // Partial match (header contains variant or vice versa)
+      if (normalizedHeader.includes(normalizedVariant)) return key;
+      if (normalizedVariant.includes(normalizedHeader) && normalizedHeader.length >= 3) return key;
     }
   }
-  
-  // Recherche par mots-clés spécifiques
-  if (normalized.includes('npc') || (normalized.includes('n') && normalized.length <= 3)) return 'npc';
-  if (normalized.includes('nom') && !normalized.includes('pre')) return 'nom';
-  if (normalized.includes('pre') || normalized.includes('first')) return 'prenoms';
-  if (normalized.includes('tel') || normalized.includes('phone')) return 'telephone';
-  if (normalized.includes('arr') || normalized.includes('district') || normalized.includes('zone')) return 'arrondissement';
-  
+
   return null;
 };
 
@@ -55,14 +56,39 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
     reader.onload = (e) => {
       try {
         const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        
-        // Prendre la première feuille
-        const sheetName = workbook.SheetNames[0];
+        if (!data) throw new Error('Aucune donnée à lire');
+
+        // XLSX est plus stable avec Uint8Array
+        const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array([]);
+        const workbook = XLSX.read(bytes, { type: 'array' });
+
+        // Choisir la feuille la plus "remplie" (certains fichiers ont la première feuille vide)
+        const pickBestSheetName = (): string => {
+          let best = workbook.SheetNames[0];
+          let bestRows = -1;
+          for (const name of workbook.SheetNames) {
+            const ws = workbook.Sheets[name];
+            const ref = ws?.['!ref'];
+            if (!ref) continue;
+            const range = XLSX.utils.decode_range(ref);
+            const rows = range.e.r - range.s.r + 1;
+            if (rows > bestRows) {
+              bestRows = rows;
+              best = name;
+            }
+          }
+          return best;
+        };
+
+        const sheetName = pickBestSheetName();
         const worksheet = workbook.Sheets[sheetName];
-        
-        // Convertir en JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as string[][];
+
+        // Convertir en tableau (lignes/colonnes)
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          defval: '',
+          blankrows: false,
+        }) as unknown[][];
         
         if (jsonData.length < 2) {
           resolve({
@@ -73,35 +99,104 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           return;
         }
 
+        // Détecter automatiquement la ligne d'en-tête (certains fichiers ont un titre en 1ère ligne)
+        const maxScanRows = Math.min(10, jsonData.length);
+        let headerRowIndex = 0;
+        let bestScore = -1;
+
+        for (let r = 0; r < maxScanRows; r++) {
+          const row = jsonData[r];
+          if (!row) continue;
+
+          const keys = new Set<string>();
+          for (const cell of row) {
+            if (cell === undefined || cell === null) continue;
+            const key = findColumnKey(String(cell));
+            if (key) keys.add(key);
+          }
+
+          if (keys.size > bestScore) {
+            bestScore = keys.size;
+            headerRowIndex = r;
+          }
+        }
+
         // Trouver les indices des colonnes
-        const headers = jsonData[0] as string[];
+        const rawHeaderRow = (jsonData[headerRowIndex] || []) as unknown[];
         const columnIndices: Record<string, number> = {};
 
-        headers.forEach((header, index) => {
-          if (header) {
-            const key = findColumnKey(String(header));
+        // Cas: en-têtes fusionnés dans une seule cellule (ex: "N° NPC, email, Nom, Prénom, ...")
+        const nonEmptyHeaderCells = rawHeaderRow
+          .map((c) => (c === undefined || c === null ? '' : String(c).trim()))
+          .filter((s) => s.length > 0);
+
+        if (
+          nonEmptyHeaderCells.length === 1 &&
+          /[,;|\t]/.test(nonEmptyHeaderCells[0])
+        ) {
+          const parts = nonEmptyHeaderCells[0]
+            .split(/[,;|\t]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+          parts.forEach((part, index) => {
+            const key = findColumnKey(part);
             if (key && columnIndices[key] === undefined) {
               columnIndices[key] = index;
             }
-          }
-        });
+          });
+        } else {
+          rawHeaderRow.forEach((headerCell, index) => {
+            if (headerCell === undefined || headerCell === null) return;
+            const key = findColumnKey(String(headerCell));
+            if (key && columnIndices[key] === undefined) {
+              columnIndices[key] = index;
+            }
+          });
+        }
 
         const contributors: Contributor[] = [];
         const errors: string[] = [];
 
-        // Parser chaque ligne de données
-        for (let i = 1; i < jsonData.length; i++) {
+        if (import.meta.env.DEV) {
+          // Debug utile quand l'import ne reconnaît pas les entêtes
+          // eslint-disable-next-line no-console
+          console.log('[excelParser] sheet:', sheetName);
+          // eslint-disable-next-line no-console
+          console.log('[excelParser] headerRowIndex:', headerRowIndex, 'raw:', jsonData[headerRowIndex]);
+          // eslint-disable-next-line no-console
+          console.log('[excelParser] columnIndices:', columnIndices);
+          // eslint-disable-next-line no-console
+          console.log('[excelParser] firstDataRow:', jsonData[headerRowIndex + 1]);
+        }
+
+        // Informer si des colonnes attendues ne sont pas détectées (sans bloquer la génération)
+        const requiredKeys = ['npc', 'nom', 'prenoms', 'telephone', 'arrondissement'] as const;
+        const missing = requiredKeys.filter((k) => columnIndices[k] === undefined);
+        if (missing.length > 0) {
+          errors.push(
+            `Colonnes non détectées: ${missing
+              .map((k) => ({ npc: 'N° NPC', nom: 'Nom', prenoms: 'Prénom(s)', telephone: 'Téléphone', arrondissement: 'Arrondissement' }[k]))
+              .join(', ')}`
+          );
+        }
+
+        // Parser chaque ligne de données (après la ligne d'en-tête)
+        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
           const row = jsonData[i];
-          
+
           // Ignorer les lignes complètement vides
-          if (!row || row.every(cell => !cell)) {
+          if (!row || row.every((cell) => cell === undefined || cell === null || String(cell).trim() === '')) {
             continue;
           }
 
           const getValue = (key: string): string => {
             const index = columnIndices[key];
-            if (index !== undefined && row[index] !== undefined && row[index] !== null) {
-              return String(row[index]).trim();
+            if (index !== undefined) {
+              const raw = row[index];
+              if (raw === undefined || raw === null) return '–';
+              const str = String(raw).trim();
+              return str.length > 0 ? str : '–';
             }
             return '–';
           };
@@ -121,7 +216,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         resolve({
           contributors,
           errors,
-          totalRows: jsonData.length - 1,
+          totalRows: Math.max(0, jsonData.length - headerRowIndex - 1),
         });
       } catch (error) {
         reject(new Error('Erreur lors de la lecture du fichier Excel'));
@@ -132,7 +227,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
       reject(new Error('Erreur lors de la lecture du fichier'));
     };
 
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
   });
 };
 

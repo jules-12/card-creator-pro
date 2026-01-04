@@ -27,13 +27,29 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onDataLoaded, onError }) =>
 
     try {
       const result = await parseExcelFile(file);
-      
+
       if (result.contributors.length === 0) {
-        onError('Aucune donnée valide trouvée dans le fichier');
+        onError(result.errors?.[0] ?? 'Aucune donnée valide trouvée dans le fichier');
         return;
       }
 
+      // Charger les données quoi qu'il arrive (tolérance maximale)
       onDataLoaded(result.contributors);
+
+      // Alerter si des colonnes ne sont pas détectées (sans bloquer)
+      if (result.errors && result.errors.length > 0) {
+        onError(result.errors.join(' | '));
+      }
+
+      // Si toutes les colonnes sont vides => en-têtes non reconnus
+      const allDash = result.contributors.every((c) =>
+        [c.npc, c.nom, c.prenoms, c.telephone, c.arrondissement].every((v) => v === '–')
+      );
+      if (allDash) {
+        onError(
+          "Je n'ai pas pu reconnaître les en-têtes du fichier. Vérifiez la ligne d'en-tête (ex: 'N° NPC', 'Nom', 'Prénom(s)', 'Téléphone', 'Arrondissement') ou envoyez-moi le fichier pour que je l'adapte."
+        );
+      }
     } catch (error) {
       onError(error instanceof Error ? error.message : 'Erreur lors de la lecture du fichier');
     } finally {
