@@ -159,10 +159,21 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         } else {
           rawHeaderRow.forEach((headerCell, index) => {
             if (headerCell === undefined || headerCell === null) return;
-            const key = findColumnKey(String(headerCell));
-            if (key && columnIndices[key] === undefined) {
-              columnIndices[key] = index;
-            }
+
+            const raw = String(headerCell).trim();
+            if (!raw) return;
+
+            // Support: plusieurs libellés dans la même cellule (ex: cellule fusionnée "Nom, Prénom")
+            const parts = /[,;|\t]/.test(raw)
+              ? raw.split(/[,;|\t]+/).map((s) => s.trim()).filter(Boolean)
+              : [raw];
+
+            parts.forEach((part, offset) => {
+              const key = findColumnKey(part);
+              if (key && columnIndices[key] === undefined) {
+                columnIndices[key] = index + offset;
+              }
+            });
           });
         }
 
