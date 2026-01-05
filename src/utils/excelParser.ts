@@ -24,7 +24,7 @@ const columnMappings: Record<string, string[]> = {
     'idnpc',
   ],
   nom: ['nom', 'nomdefamille', 'familyname', 'lastname', 'surname'],
-  prenoms: ['prenom', 'prenoms', 'firstname', 'givenname', 'given'],
+  prenoms: ['prenom', 'prenoms', 'prnoms', 'prnms', 'firstname', 'givenname', 'given'],
   telephone: ['telephone', 'tel', 'phone', 'mobile', 'portable', 'gsm', 'numtel', 'phonenumber'],
   arrondissement: ['arrondissement', 'arrond', 'arr', 'quartier', 'district', 'zone', 'arrondisment'],
 };
@@ -32,6 +32,16 @@ const columnMappings: Record<string, string[]> = {
 const findColumnKey = (header: string): string | null => {
   const normalizedHeader = normalizeColumnName(header);
   if (!normalizedHeader) return null;
+
+  // Cas très fréquent: "Prénom", "Prénoms", "Prénom(s)"... + cas d'encodage exotique (ex: "PrÃ©noms")
+  // (on force ce mapping pour éviter toute collision avec "Nom")
+  if (
+    normalizedHeader.includes('prenom') ||
+    normalizedHeader.includes('prnoms') ||
+    normalizedHeader.includes('prnms')
+  ) {
+    return 'prenoms';
+  }
 
   // 1) Priorité aux correspondances exactes (évite "nom" qui match "prenoms")
   for (const [key, variants] of Object.entries(columnMappings)) {
