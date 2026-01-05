@@ -33,16 +33,25 @@ const findColumnKey = (header: string): string | null => {
   const normalizedHeader = normalizeColumnName(header);
   if (!normalizedHeader) return null;
 
+  // 1) Priorité aux correspondances exactes (évite "nom" qui match "prenoms")
   for (const [key, variants] of Object.entries(columnMappings)) {
     for (const variant of variants) {
       const normalizedVariant = normalizeColumnName(variant);
+      if (normalizedVariant && normalizedHeader === normalizedVariant) return key;
+    }
+  }
 
-      // Exact match
-      if (normalizedHeader === normalizedVariant) return key;
+  // 2) Correspondances partielles (uniquement sur des variantes assez longues)
+  for (const [key, variants] of Object.entries(columnMappings)) {
+    for (const variant of variants) {
+      const normalizedVariant = normalizeColumnName(variant);
+      if (!normalizedVariant) continue;
 
-      // Partial match (header contains variant or vice versa)
+      // Évite les collisions sur des mots trop courts (ex: "nom" dans "prenoms")
+      if (normalizedVariant.length < 4 || normalizedHeader.length < 4) continue;
+
       if (normalizedHeader.includes(normalizedVariant)) return key;
-      if (normalizedVariant.includes(normalizedHeader) && normalizedHeader.length >= 3) return key;
+      if (normalizedVariant.includes(normalizedHeader)) return key;
     }
   }
 
@@ -175,6 +184,19 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
               }
             });
           });
+        }
+
+        // Fallback dédié pour "Prénom/Prénoms" (colonne souvent mal détectée à cause de collisions)
+        if (columnIndices.prenoms === undefined) {
+          for (let i = 0; i < rawHeaderRow.length; i++) {
+            const cell = rawHeaderRow[i];
+            if (cell === undefined || cell === null) continue;
+            const normalized = normalizeColumnName(String(cell));
+            if (normalized.includes('prenom')) {
+              columnIndices.prenoms = i;
+              break;
+            }
+          }
         }
 
         const contributors: Contributor[] = [];
