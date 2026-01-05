@@ -111,8 +111,19 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           const keys = new Set<string>();
           for (const cell of row) {
             if (cell === undefined || cell === null) continue;
-            const key = findColumnKey(String(cell));
-            if (key) keys.add(key);
+
+            const raw = String(cell).trim();
+            if (!raw) continue;
+
+            // Support d'entêtes "fusionnés" ou concaténés (ex: "N° NPC, email, Nom, Prénom, ...")
+            const parts = /[,;|\t]/.test(raw)
+              ? raw.split(/[,;|\t]+/).map((s) => s.trim()).filter(Boolean)
+              : [raw];
+
+            for (const part of parts) {
+              const key = findColumnKey(part);
+              if (key) keys.add(key);
+            }
           }
 
           if (keys.size > bestScore) {
