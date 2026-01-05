@@ -38,8 +38,8 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
           {/* Logo Ville de Cotonou (gauche) */}
           <div className="w-14 h-14 flex items-center justify-center">
             <img
-              src={logoGauche}
-              alt="Ville de Cotonou"
+              src={logoDroit}
+              alt="République du Bénin"
               className="w-12 h-12 object-contain"
               loading="lazy"
             />
@@ -61,9 +61,10 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
           {/* Logo République du Bénin (droite) */}
           <div className="w-14 h-14 flex items-center justify-center">
             <img 
-              src={logoDroit} 
-              alt="République du Bénin" 
+              src={logoGauche} 
+              alt="Ville de Cotonou" 
               className="w-12 h-12 object-contain"
+              loading="lazy"
             />
           </div>
         </div>
@@ -119,11 +120,11 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
           <ul className="card-footer-text space-y-0 leading-tight">
             <li className="flex items-start">
               <span className="mr-1">•</span>
-              <span>Adresse postale : 03 BP : 1777 Cotonou - BÉNIN .Téléphone : +229 21 30 95 69</span>
+              <span>03 BP 1777 Cotonou - BÉNIN • Tél : +229 21 30 95 69</span>
             </li>
             <li className="flex items-start">
               <span className="mr-1">•</span>
-              <span>E-mail : mairiecotonou.infos@gouv.bj .Site web : www.cotonou.mairie.bj</span>
+              <span>mairiecotonou.infos@gouv.bj • www.cotonou.mairie.bj</span>
             </li>
           </ul>
         </div>

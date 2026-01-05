@@ -10,8 +10,8 @@ const Header = () => {
         <div className="flex items-center justify-center gap-4">
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
             <img
-              src={logoGauche}
-              alt="Ville de Cotonou"
+              src={logoDroit}
+              alt="République du Bénin"
               className="w-10 h-10 object-contain"
               loading="lazy"
             />
@@ -26,8 +26,8 @@ const Header = () => {
           </div>
           <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center overflow-hidden">
             <img
-              src={logoDroit}
-              alt="République du Bénin"
+              src={logoGauche}
+              alt="Ville de Cotonou"
               className="w-10 h-10 object-contain"
               loading="lazy"
             />
