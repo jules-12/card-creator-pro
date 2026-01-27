@@ -135,7 +135,7 @@ const Index: React.FC = () => {
       {/* Footer */}
       <footer className="mt-auto">
         <div className="container py-4 text-center text-sm text-muted-foreground">
-          <p>© 2024 Mairie de Cotonou - Tous droits réservés</p>
+          <p>© 2026 Mairie de Cotonou - Tous droits réservés</p>
         </div>
         <BeninFlagStripe height="4px" />
       </footer>
