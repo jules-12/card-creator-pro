@@ -80,7 +80,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-card rounded-xl shadow-sm border">
         <div className="flex items-center gap-2">
           <span className="font-heading font-semibold text-foreground">
-            {contributors.length} carte{contributors.length > 1 ? 's' : ''} B2 générée{contributors.length > 1 ? 's' : ''}
+            {contributors.length} carte{contributors.length > 1 ? 's' : ''}  générée{contributors.length > 1 ? 's' : ''}
           </span>
         </div>
 
@@ -151,7 +151,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
               onClick={() => handleExportSingle(contributor)}
               disabled={isExporting}
               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white text-primary p-2 rounded-full shadow-lg"
-              title="Télécharger cette carte B2 en PDF"
+              title="Télécharger cette carte  en PDF"
             >
               <Download className="w-4 h-4" />
             </button>

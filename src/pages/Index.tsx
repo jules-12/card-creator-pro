@@ -110,7 +110,7 @@ const Index: React.FC = () => {
                   'Tél propriétaire',
                   'Résidence',
                   'Caractéristiques Moto',
-                  'Arrondissement',
+                  
                 ].map((col) => (
                   <div
                     key={col}

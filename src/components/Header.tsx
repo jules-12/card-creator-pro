@@ -18,7 +18,7 @@ const Header = () => {
           </div>
           <div className="text-center">
             <h1 className="font-heading font-bold text-xl md:text-2xl text-foreground">
-              Générateur de Cartes B2
+              Générateur de Cartes 
             </h1>
             <p className="text-sm text-muted-foreground">
               Mairie de Cotonou - Carte de Recensement Taxi-Moto

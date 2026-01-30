@@ -79,7 +79,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             <div style={{ color: 'white', fontSize: '6pt', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>
               MAIRIE DE COTONOU
             </div>
-            <div style={{ color: 'white', fontSize: '4.5pt', fontWeight: 500, fontStyle: 'italic' }}>
+            <div style={{ color: 'white', fontSize: '4.5pt', fontWeight: 500, fontStyle: 'Montserrat, sans-serif' }}>
               Direction des Affaires Administratives et Financières DAAF
             </div>
             <div style={{ color: 'white', fontSize: '4.5pt', fontWeight: 500 }}>
