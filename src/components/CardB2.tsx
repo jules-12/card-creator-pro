@@ -10,17 +10,22 @@ interface CardB2Props {
 
 const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
   ({ contributor }, ref) => {
+    const safe = (v: string | null | undefined) => {
+      const s = (v ?? '').toString().trim();
+      return s.length > 0 ? s : '–';
+    };
+
     // Générer les données du QR Code avec tous les champs
     const qrData = [
-      `N° NPC: ${contributor.npc}`,
-      `Nom & Prénoms: ${contributor.nom} ${contributor.prenoms}`,
-      `Tél conducteur: ${contributor.telephone}`,
-      `Personne à contacter: ${contributor.personneContact}`,
-      `Tél contact: ${contributor.telephoneContact}`,
-      `Propriétaire: ${contributor.proprietaire}`,
-      `Tél propriétaire: ${contributor.telephoneProprietaire}`,
-      `Résidence: ${contributor.residence}`,
-      `Caract. Moto: ${contributor.caracteristiquesMoto}`,
+      `N° NPC: ${safe(contributor.npc)}`,
+      `Nom & Prénoms: ${safe(contributor.nom)} ${safe(contributor.prenoms)}`,
+      `Tél conducteur: ${safe(contributor.telephone)}`,
+      `Personne à contacter: ${safe(contributor.personneContact)}`,
+      `Tél contact: ${safe(contributor.telephoneContact)}`,
+      `Propriétaire: ${safe(contributor.proprietaire)}`,
+      `Tél propriétaire: ${safe(contributor.telephoneProprietaire)}`,
+      `Résidence: ${safe(contributor.residence)}`,
+      `Caract. Moto: ${safe(contributor.caracteristiquesMoto)}`,
     ].join('\n');
 
     return (
@@ -40,7 +45,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         }}
       >
         {/* Bande supérieure du drapeau */}
-        <div style={{ display: 'flex', width: '100%', height: '1.2mm', flexShrink: 0 }}>
+        <div style={{ display: 'flex', width: '100%', height: '0.8mm', flexShrink: 0 }}>
           <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
@@ -108,36 +113,36 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Corps de la carte */}
-        <div style={{ flex: 1, display: 'flex', padding: '0 3mm 1mm', minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
           {/* Informations */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
-            <DataRow label="N° NPC" value={contributor.npc} />
-            <DataRow label="Nom Prénoms conducteur" value={`${contributor.nom} ${contributor.prenoms}`} />
-            <DataRow label="Tél" value={contributor.telephone} />
-            <DataRow label="Personne à contacter" value={contributor.personneContact} />
-            <DataRow label="Tél" value={contributor.telephoneContact} />
-            <DataRow label="Propriétaire" value={contributor.proprietaire} />
-            <DataRow label="Tél" value={contributor.telephoneProprietaire} />
-            <DataRow label="Résidence" value={contributor.residence} />
-            <DataRow label="Caractéristiques Moto" value={contributor.caracteristiquesMoto} />
+            <DataRow label="N° NPC" value={safe(contributor.npc)} />
+            <DataRow label="Nom Prénoms conducteur" value={`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim()} />
+            <DataRow label="Tél" value={safe(contributor.telephone)} />
+            <DataRow label="Personne à contacter" value={safe(contributor.personneContact)} />
+            <DataRow label="Tél" value={safe(contributor.telephoneContact)} />
+            <DataRow label="Propriétaire" value={safe(contributor.proprietaire)} />
+            <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
+            <DataRow label="Résidence" value={safe(contributor.residence)} />
+            <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
           </div>
 
           {/* QR Code */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
-            <div style={{ backgroundColor: 'white', padding: '1.5mm', borderRadius: '1mm', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }}>
-              <QRCodeSVG
-                value={qrData}
-                size={55}
-                level="M"
-                includeMargin={false}
-              />
-            </div>
+            <QRCodeSVG
+              value={qrData}
+              size={55}
+              level="M"
+              includeMargin={false}
+              bgColor="transparent"
+              fgColor="hsl(0 0% 0%)"
+            />
           </div>
         </div>
 
         {/* Pied de page */}
-        <div style={{ padding: '0.8mm 3mm', flexShrink: 0 }}>
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '4pt', color: 'hsl(210 100% 35%)' }}>
+        <div style={{ padding: '0.6mm 3mm 1.8mm', flexShrink: 0 }}>
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '3.8pt', lineHeight: 1.15, color: 'hsl(210 100% 35%)' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start' }}>
               <span style={{ marginRight: '1mm' }}>•</span>
               <span>Adresse postale : 03 BP : 1777 Cotonou - BÉNIN .Téléphone : +229 21 30 95 69</span>
@@ -150,7 +155,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Bande inférieure du drapeau */}
-        <div style={{ display: 'flex', width: '100%', height: '1.2mm', flexShrink: 0 }}>
+        <div style={{ display: 'flex', width: '100%', height: '0.8mm', flexShrink: 0 }}>
           <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
@@ -175,7 +180,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     >
       {label}:
     </span>
-    <span style={{ fontSize: '5pt', fontWeight: 600 }}>{value}</span>
+    <span style={{ fontSize: '5pt', fontWeight: 600 }}>{value && value.trim().length > 0 ? value : '–'}</span>
   </div>
 );
 

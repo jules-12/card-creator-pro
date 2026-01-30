@@ -21,8 +21,9 @@ const columnMappings: Record<string, string[]> = {
   telephoneContact: ['telcontact', 'telephonecontact', 'telurgence', 'telephonepersonneacontacter'],
   proprietaire: ['proprietaire', 'proprio', 'owner', 'possesseur'],
   telephoneProprietaire: ['telproprietaire', 'telephoneproprietaire', 'telproprio'],
-  residence: ['residence', 'adresse', 'domicile', 'lieu', 'habitation', 'quartier'],
-  caracteristiquesMoto: ['caracteristiquesmoto', 'moto', 'caracteristiques', 'vehicule', 'engin', 'immatriculation'],
+  // NOTE: variantes courantes + fautes fréquentes (ex: "Résidance")
+  residence: ['residence', 'residance', 'adresse', 'domicile', 'lieu', 'habitation', 'quartier'],
+  caracteristiquesMoto: ['caracteristiquesmoto', 'caracteristique', 'moto', 'caracteristiques', 'vehicule', 'engin', 'immatriculation'],
   arrondissement: ['arrondissement', 'arrond', 'arr', 'district', 'zone', 'arrondisment'],
 };
 
@@ -145,6 +146,39 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const rawHeaderRow = (jsonData[headerRowIndex] || []) as unknown[];
         const columnIndices: Record<string, number> = {};
 
+        // Garde en mémoire les clés déjà assignées par index pour appliquer des heuristiques
+        // (ex: deux colonnes "Téléphone" : conducteur puis personne à contacter).
+        const mappedKeyByIndex: Array<string | null> = new Array(rawHeaderRow.length).fill(null);
+
+        const assignColumnIndex = (key: string, index: number) => {
+          const prevKey = index > 0 ? mappedKeyByIndex[index - 1] : null;
+
+          let finalKey = key;
+          if (key === 'telephone') {
+            // 1er "Téléphone" => téléphone conducteur
+            if (columnIndices.telephone === undefined) {
+              finalKey = 'telephone';
+            } else {
+              // Heuristiques basées sur la colonne précédente
+              if (columnIndices.telephoneContact === undefined && prevKey === 'personneContact') {
+                finalKey = 'telephoneContact';
+              } else if (columnIndices.telephoneProprietaire === undefined && prevKey === 'proprietaire') {
+                finalKey = 'telephoneProprietaire';
+              } else if (columnIndices.telephoneContact === undefined) {
+                // fallback : 2e "Téléphone" => contact
+                finalKey = 'telephoneContact';
+              } else if (columnIndices.telephoneProprietaire === undefined) {
+                finalKey = 'telephoneProprietaire';
+              }
+            }
+          }
+
+          if (columnIndices[finalKey] === undefined) {
+            columnIndices[finalKey] = index;
+            mappedKeyByIndex[index] = finalKey;
+          }
+        };
+
         const nonEmptyHeaderCells = rawHeaderRow
           .map((c) => (c === undefined || c === null ? '' : String(c).trim()))
           .filter((s) => s.length > 0);
@@ -157,28 +191,32 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
           parts.forEach((part, index) => {
             const key = findColumnKey(part);
-            if (key && columnIndices[key] === undefined) {
-              columnIndices[key] = index;
-            }
+            if (key) assignColumnIndex(key, index);
           });
         } else {
-          rawHeaderRow.forEach((headerCell, index) => {
-            if (headerCell === undefined || headerCell === null) return;
+          for (let index = 0; index < rawHeaderRow.length; index++) {
+            const headerCell = rawHeaderRow[index];
+            if (headerCell === undefined || headerCell === null) continue;
 
             const raw = String(headerCell).trim();
-            if (!raw) return;
+            if (!raw) continue;
 
             const parts = /[,;|\t]/.test(raw)
-              ? raw.split(/[,;|\t]+/).map((s) => s.trim()).filter(Boolean)
+              ? raw
+                  .split(/[,;|\t]+/)
+                  .map((s) => s.trim())
+                  .filter(Boolean)
               : [raw];
 
             parts.forEach((part, offset) => {
               const key = findColumnKey(part);
-              if (key && columnIndices[key] === undefined) {
-                columnIndices[key] = index + offset;
-              }
+              if (!key) return;
+
+              const actualIndex = index + offset;
+              if (actualIndex < 0 || actualIndex >= rawHeaderRow.length) return;
+              assignColumnIndex(key, actualIndex);
             });
-          });
+          }
         }
 
         // Fallback dédié pour "Prénom/Prénoms"
