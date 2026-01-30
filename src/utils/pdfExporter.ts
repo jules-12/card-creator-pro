@@ -4,9 +4,9 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Contributor } from '@/types/contributor';
 
-// Dimensions de la carte en mm (10cm x 7cm)
-const CARD_WIDTH_MM = 100;
-const CARD_HEIGHT_MM = 70;
+// Dimensions de la carte B2 en mm (format carte bancaire)
+const CARD_WIDTH_MM = 85.6;
+const CARD_HEIGHT_MM = 54;
 
 // DPI pour une bonne qualité d'impression
 const SCALE_FACTOR = 3;
@@ -37,7 +37,7 @@ export const exportSingleCardToPdf = async (
     const imgData = canvas.toDataURL('image/png', 1.0);
     pdf.addImage(imgData, 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
     
-    const fileName = `carte-${contributor.npc || contributor.id}.pdf`;
+    const fileName = `carte-b2-${contributor.npc || contributor.id}.pdf`;
     pdf.save(fileName);
   } catch (error) {
     console.error('Erreur export PDF individuel:', error);
@@ -74,7 +74,7 @@ export const exportAllCardsToPdf = async (
       }
     }
 
-    pdf.save(`cartes-professionnelles-${Date.now()}.pdf`);
+    pdf.save(`cartes-b2-${Date.now()}.pdf`);
   } catch (error) {
     console.error('Erreur export PDF global:', error);
     throw new Error('Erreur lors de l\'export PDF global');
@@ -92,7 +92,7 @@ export const exportAllCardsToZip = async (
 
   try {
     const zip = new JSZip();
-    const cardsFolder = zip.folder('cartes-individuelles');
+    const cardsFolder = zip.folder('cartes-b2-individuelles');
 
     // Générer chaque PDF individuel
     for (let i = 0; i < cardElements.length; i++) {
@@ -108,7 +108,7 @@ export const exportAllCardsToZip = async (
       pdf.addImage(imgData, 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
       
       const pdfBlob = pdf.output('blob');
-      const fileName = `carte-${contributors[i].npc || contributors[i].id}.pdf`;
+      const fileName = `carte-b2-${contributors[i].npc || contributors[i].id}.pdf`;
       cardsFolder?.file(fileName, pdfBlob);
 
       if (onProgress) {
@@ -138,11 +138,11 @@ export const exportAllCardsToZip = async (
     }
 
     const globalPdfBlob = globalPdf.output('blob');
-    zip.file('toutes-les-cartes.pdf', globalPdfBlob);
+    zip.file('toutes-les-cartes-b2.pdf', globalPdfBlob);
 
     // Générer et télécharger le ZIP
     const zipBlob = await zip.generateAsync({ type: 'blob' });
-    saveAs(zipBlob, `cartes-professionnelles-${Date.now()}.zip`);
+    saveAs(zipBlob, `cartes-b2-${Date.now()}.zip`);
   } catch (error) {
     console.error('Erreur export ZIP:', error);
     throw new Error('Erreur lors de l\'export ZIP');

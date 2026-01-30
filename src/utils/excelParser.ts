@@ -12,29 +12,25 @@ const normalizeColumnName = (name: string): string => {
 };
 
 // Mapping des colonnes possibles (normalisées via normalizeColumnName)
-// Objectif: tolérance maximale aux variations: accents, ponctuation, "N°", pluriels, etc.
 const columnMappings: Record<string, string[]> = {
-  npc: [
-    'npc',
-    'nnpc',
-    'numeronpc',
-    'numnpc',
-    'numcontribuable',
-    'matricule',
-    'idnpc',
-  ],
+  npc: ['npc', 'nnpc', 'numeronpc', 'numnpc', 'numcontribuable', 'matricule', 'idnpc'],
   nom: ['nom', 'nomdefamille', 'familyname', 'lastname', 'surname'],
-  prenoms: ['prenom', 'prenoms', 'prnoms', 'prnms', 'firstname', 'givenname', 'given'],
-  telephone: ['telephone', 'tel', 'phone', 'mobile', 'portable', 'gsm', 'numtel', 'phonenumber'],
-  arrondissement: ['arrondissement', 'arrond', 'arr', 'quartier', 'district', 'zone', 'arrondisment'],
+  prenoms: ['prenom', 'prenoms', 'prnoms', 'prnms', 'firstname', 'givenname', 'given', 'prenomsconducteur'],
+  telephone: ['telephone', 'tel', 'phone', 'mobile', 'portable', 'gsm', 'numtel', 'phonenumber', 'telconducteur', 'telephoneconducteur'],
+  personneContact: ['personneacontacter', 'personnecontact', 'contact', 'urgence', 'personneurgence'],
+  telephoneContact: ['telcontact', 'telephonecontact', 'telurgence', 'telephonepersonneacontacter'],
+  proprietaire: ['proprietaire', 'proprio', 'owner', 'possesseur'],
+  telephoneProprietaire: ['telproprietaire', 'telephoneproprietaire', 'telproprio'],
+  residence: ['residence', 'adresse', 'domicile', 'lieu', 'habitation', 'quartier'],
+  caracteristiquesMoto: ['caracteristiquesmoto', 'moto', 'caracteristiques', 'vehicule', 'engin', 'immatriculation'],
+  arrondissement: ['arrondissement', 'arrond', 'arr', 'district', 'zone', 'arrondisment'],
 };
 
 const findColumnKey = (header: string): string | null => {
   const normalizedHeader = normalizeColumnName(header);
   if (!normalizedHeader) return null;
 
-  // Cas très fréquent: "Prénom", "Prénoms", "Prénom(s)"... + cas d'encodage exotique (ex: "PrÃ©noms")
-  // (on force ce mapping pour éviter toute collision avec "Nom")
+  // Cas spéciaux pour "Prénom(s)" et encodages exotiques
   if (
     normalizedHeader.includes('prenom') ||
     normalizedHeader.includes('prnoms') ||
@@ -43,7 +39,7 @@ const findColumnKey = (header: string): string | null => {
     return 'prenoms';
   }
 
-  // 1) Priorité aux correspondances exactes (évite "nom" qui match "prenoms")
+  // 1) Priorité aux correspondances exactes
   for (const [key, variants] of Object.entries(columnMappings)) {
     for (const variant of variants) {
       const normalizedVariant = normalizeColumnName(variant);
@@ -51,15 +47,12 @@ const findColumnKey = (header: string): string | null => {
     }
   }
 
-  // 2) Correspondances partielles (uniquement sur des variantes assez longues)
+  // 2) Correspondances partielles
   for (const [key, variants] of Object.entries(columnMappings)) {
     for (const variant of variants) {
       const normalizedVariant = normalizeColumnName(variant);
       if (!normalizedVariant) continue;
-
-      // Évite les collisions sur des mots trop courts (ex: "nom" dans "prenoms")
       if (normalizedVariant.length < 4 || normalizedHeader.length < 4) continue;
-
       if (normalizedHeader.includes(normalizedVariant)) return key;
       if (normalizedVariant.includes(normalizedHeader)) return key;
     }
@@ -77,11 +70,10 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const data = e.target?.result;
         if (!data) throw new Error('Aucune donnée à lire');
 
-        // XLSX est plus stable avec Uint8Array
         const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array([]);
         const workbook = XLSX.read(bytes, { type: 'array' });
 
-        // Choisir la feuille la plus "remplie" (certains fichiers ont la première feuille vide)
+        // Choisir la feuille la plus "remplie"
         const pickBestSheetName = (): string => {
           let best = workbook.SheetNames[0];
           let bestRows = -1;
@@ -102,7 +94,6 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const sheetName = pickBestSheetName();
         const worksheet = workbook.Sheets[sheetName];
 
-        // Convertir en tableau (lignes/colonnes)
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           defval: '',
@@ -118,7 +109,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           return;
         }
 
-        // Détecter automatiquement la ligne d'en-tête (certains fichiers ont un titre en 1ère ligne)
+        // Détecter automatiquement la ligne d'en-tête
         const maxScanRows = Math.min(10, jsonData.length);
         let headerRowIndex = 0;
         let bestScore = -1;
@@ -134,7 +125,6 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
             const raw = String(cell).trim();
             if (!raw) continue;
 
-            // Support d'entêtes "fusionnés" ou concaténés (ex: "N° NPC, email, Nom, Prénom, ...")
             const parts = /[,;|\t]/.test(raw)
               ? raw.split(/[,;|\t]+/).map((s) => s.trim()).filter(Boolean)
               : [raw];
@@ -155,15 +145,11 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const rawHeaderRow = (jsonData[headerRowIndex] || []) as unknown[];
         const columnIndices: Record<string, number> = {};
 
-        // Cas: en-têtes fusionnés dans une seule cellule (ex: "N° NPC, email, Nom, Prénom, ...")
         const nonEmptyHeaderCells = rawHeaderRow
           .map((c) => (c === undefined || c === null ? '' : String(c).trim()))
           .filter((s) => s.length > 0);
 
-        if (
-          nonEmptyHeaderCells.length === 1 &&
-          /[,;|\t]/.test(nonEmptyHeaderCells[0])
-        ) {
+        if (nonEmptyHeaderCells.length === 1 && /[,;|\t]/.test(nonEmptyHeaderCells[0])) {
           const parts = nonEmptyHeaderCells[0]
             .split(/[,;|\t]+/)
             .map((s) => s.trim())
@@ -182,7 +168,6 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
             const raw = String(headerCell).trim();
             if (!raw) return;
 
-            // Support: plusieurs libellés dans la même cellule (ex: cellule fusionnée "Nom, Prénom")
             const parts = /[,;|\t]/.test(raw)
               ? raw.split(/[,;|\t]+/).map((s) => s.trim()).filter(Boolean)
               : [raw];
@@ -196,7 +181,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           });
         }
 
-        // Fallback dédié pour "Prénom/Prénoms" (colonne souvent mal détectée à cause de collisions)
+        // Fallback dédié pour "Prénom/Prénoms"
         if (columnIndices.prenoms === undefined) {
           for (let i = 0; i < rawHeaderRow.length; i++) {
             const cell = rawHeaderRow[i];
@@ -213,33 +198,27 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const errors: string[] = [];
 
         if (import.meta.env.DEV) {
-          // Debug utile quand l'import ne reconnaît pas les entêtes
-          // eslint-disable-next-line no-console
           console.log('[excelParser] sheet:', sheetName);
-          // eslint-disable-next-line no-console
           console.log('[excelParser] headerRowIndex:', headerRowIndex, 'raw:', jsonData[headerRowIndex]);
-          // eslint-disable-next-line no-console
           console.log('[excelParser] columnIndices:', columnIndices);
-          // eslint-disable-next-line no-console
           console.log('[excelParser] firstDataRow:', jsonData[headerRowIndex + 1]);
         }
 
-        // Informer si des colonnes attendues ne sont pas détectées (sans bloquer la génération)
-        const requiredKeys = ['npc', 'nom', 'prenoms', 'telephone', 'arrondissement'] as const;
+        // Informer si des colonnes attendues ne sont pas détectées
+        const requiredKeys = ['npc', 'nom', 'prenoms', 'telephone'] as const;
         const missing = requiredKeys.filter((k) => columnIndices[k] === undefined);
         if (missing.length > 0) {
           errors.push(
             `Colonnes non détectées: ${missing
-              .map((k) => ({ npc: 'N° NPC', nom: 'Nom', prenoms: 'Prénom(s)', telephone: 'Téléphone', arrondissement: 'Arrondissement' }[k]))
+              .map((k) => ({ npc: 'N° NPC', nom: 'Nom', prenoms: 'Prénom(s)', telephone: 'Téléphone' }[k]))
               .join(', ')}`
           );
         }
 
-        // Parser chaque ligne de données (après la ligne d'en-tête)
+        // Parser chaque ligne de données
         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
           const row = jsonData[i];
 
-          // Ignorer les lignes complètement vides
           if (!row || row.every((cell) => cell === undefined || cell === null || String(cell).trim() === '')) {
             continue;
           }
@@ -261,6 +240,12 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
             nom: getValue('nom'),
             prenoms: getValue('prenoms'),
             telephone: getValue('telephone'),
+            personneContact: getValue('personneContact'),
+            telephoneContact: getValue('telephoneContact'),
+            proprietaire: getValue('proprietaire'),
+            telephoneProprietaire: getValue('telephoneProprietaire'),
+            residence: getValue('residence'),
+            caracteristiquesMoto: getValue('caracteristiquesMoto'),
             arrondissement: getValue('arrondissement'),
           };
 
@@ -285,7 +270,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
   });
 };
 
-// Données de test
+// Données de test pour la carte B2
 export const generateTestData = (): Contributor[] => {
   return [
     {
@@ -294,6 +279,12 @@ export const generateTestData = (): Contributor[] => {
       nom: 'AHOUANDJINOU',
       prenoms: 'Pierre Marie',
       telephone: '97 00 11 22',
+      personneContact: 'Marie AHOUANDJINOU',
+      telephoneContact: '96 11 22 33',
+      proprietaire: 'Jean AHOUANDJINOU',
+      telephoneProprietaire: '95 44 55 66',
+      residence: 'Akpakpa',
+      caracteristiquesMoto: 'Honda CG 125',
       arrondissement: 'Akpakpa',
     },
     {
@@ -302,6 +293,12 @@ export const generateTestData = (): Contributor[] => {
       nom: 'HOUNGBEDJI',
       prenoms: 'Jeanne',
       telephone: '96 33 44 55',
+      personneContact: '–',
+      telephoneContact: '–',
+      proprietaire: 'Jeanne HOUNGBEDJI',
+      telephoneProprietaire: '96 33 44 55',
+      residence: 'Cadjèhoun',
+      caracteristiquesMoto: 'Bajaj Boxer',
       arrondissement: 'Cadjèhoun',
     },
     {
@@ -310,23 +307,13 @@ export const generateTestData = (): Contributor[] => {
       nom: 'ZINSOU',
       prenoms: 'Emmanuel',
       telephone: '95 66 77 88',
+      personneContact: 'Paul ZINSOU',
+      telephoneContact: '94 77 88 99',
+      proprietaire: 'Emmanuel ZINSOU',
+      telephoneProprietaire: '95 66 77 88',
+      residence: 'Fidjrossè',
+      caracteristiquesMoto: 'TVS Apache',
       arrondissement: 'Fidjrossè',
-    },
-    {
-      id: 'test-4',
-      npc: 'NPC-2024-004',
-      nom: 'AGBANGLA',
-      prenoms: 'Félicité',
-      telephone: '94 99 00 11',
-      arrondissement: 'Godomey',
-    },
-    {
-      id: 'test-5',
-      npc: 'NPC-2024-005',
-      nom: 'SODJI',
-      prenoms: 'André',
-      telephone: '–',
-      arrondissement: 'Agla',
     },
   ];
 };
