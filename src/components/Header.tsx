@@ -18,10 +18,10 @@ const Header = () => {
           </div>
           <div className="text-center">
             <h1 className="font-heading font-bold text-xl md:text-2xl text-foreground">
-              Générateur de Cartes Professionnelles
+              Générateur de Cartes B2
             </h1>
             <p className="text-sm text-muted-foreground">
-              Mairie de Cotonou - Secteur des Taxi-Urbain
+              Mairie de Cotonou - Carte de Recensement Taxi-Moto
             </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center overflow-hidden">
