@@ -96,10 +96,22 @@ const Index: React.FC = () => {
                 Format du fichier Excel
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Votre fichier Excel doit contenir les colonnes suivantes :
+                Votre fichier Excel peut contenir les colonnes suivantes :
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {['N° NPC', 'Nom', 'Prénoms', 'Téléphone', 'Arrondissement'].map((col) => (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {[
+                  'N° NPC',
+                  'Nom',
+                  'Prénom(s)',
+                  'Téléphone',
+                  'Personne à contacter',
+                  'Tél contact',
+                  'Propriétaire',
+                  'Tél propriétaire',
+                  'Résidence',
+                  'Caractéristiques Moto',
+                  'Arrondissement',
+                ].map((col) => (
                   <div
                     key={col}
                     className="bg-card px-3 py-2 rounded-lg text-center text-sm font-medium text-foreground border"
@@ -109,7 +121,7 @@ const Index: React.FC = () => {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-4">
-                💡 Les colonnes supplémentaires seront automatiquement ignorées.
+                💡 Colonnes reconnues automatiquement avec flexibilité (accents, variantes).
                 Les champs manquants seront remplacés par « – ».
               </p>
             </div>

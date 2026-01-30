@@ -40,7 +40,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         }}
       >
         {/* Bande supérieure du drapeau */}
-        <div style={{ display: 'flex', width: '100%', height: '2.5mm', flexShrink: 0 }}>
+        <div style={{ display: 'flex', width: '100%', height: '1.2mm', flexShrink: 0 }}>
           <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
@@ -150,7 +150,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Bande inférieure du drapeau */}
-        <div style={{ display: 'flex', width: '100%', height: '2.5mm', flexShrink: 0 }}>
+        <div style={{ display: 'flex', width: '100%', height: '1.2mm', flexShrink: 0 }}>
           <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
           <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
