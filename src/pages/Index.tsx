@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import FileUploader from '@/components/FileUploader';
 import CardGallery from '@/components/CardGallery';
+import SavedCardsManager from '@/components/SavedCardsManager';
 import BeninFlagStripe from '@/components/BeninFlagStripe';
 import { Contributor } from '@/types/contributor';
 import { generateTestData } from '@/utils/excelParser';
@@ -129,14 +130,20 @@ const Index: React.FC = () => {
         ) : (
           /* État avec données - Galerie des cartes */
           <div className="animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <h2 className="font-heading text-xl font-bold text-foreground">
                 Cartes générées
               </h2>
-              <Button onClick={handleReset} variant="outline" className="gap-2">
-                <RefreshCw className="w-4 h-4" />
-                Nouveau fichier
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <SavedCardsManager
+                  currentCards={contributors}
+                  onLoadCards={handleDataLoaded}
+                />
+                <Button onClick={handleReset} variant="outline" className="gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Nouveau fichier
+                </Button>
+              </div>
             </div>
 
             <CardGallery contributors={contributors} />
