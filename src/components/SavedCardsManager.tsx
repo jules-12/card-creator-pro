@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, FolderOpen, Trash2, Calendar, CreditCard, X } from 'lucide-react';
+import { Save, FolderOpen, Trash2, Calendar, CreditCard, Edit2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,17 +11,19 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { Contributor } from '@/types/contributor';
-import { saveCards, getSavedCardSets, deleteCardSet, SavedCardSet } from '@/utils/cardStorage';
+import { saveCards, getSavedCardSets, deleteCardSet, updateCardSet, SavedCardSet } from '@/utils/cardStorage';
 import { useToast } from '@/hooks/use-toast';
 
 interface SavedCardsManagerProps {
   currentCards: Contributor[];
   onLoadCards: (cards: Contributor[]) => void;
+  showSaveButton?: boolean;
 }
 
 const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
   currentCards,
   onLoadCards,
+  showSaveButton = true,
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -29,12 +31,22 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [saveName, setSaveName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [editingSet, setEditingSet] = useState<SavedCardSet | null>(null);
+  const [editName, setEditName] = useState('');
 
   useEffect(() => {
     if (user) {
       setSavedSets(getSavedCardSets(user.id));
     }
   }, [user]);
+
+  // Rafraîchir les sauvegardes quand le dialog s'ouvre
+  useEffect(() => {
+    if (loadDialogOpen && user) {
+      setSavedSets(getSavedCardSets(user.id));
+    }
+  }, [loadDialogOpen, user]);
 
   const handleSave = () => {
     if (!user || !saveName.trim()) return;
@@ -70,6 +82,46 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
     });
   };
 
+  const handleStartEdit = (set: SavedCardSet, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingSet(set);
+    setEditName(set.name);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingSet || !editName.trim()) return;
+
+    updateCardSet(editingSet.id, { name: editName.trim() });
+    setSavedSets(getSavedCardSets(user?.id || ''));
+    setEditingSet(null);
+    setEditName('');
+
+    toast({
+      title: 'Modifié',
+      description: `Sauvegarde renommée en "${editName.trim()}"`,
+    });
+  };
+
+  const handleUpdateCards = (set: SavedCardSet, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentCards.length === 0) {
+      toast({
+        title: 'Aucune carte',
+        description: 'Importez des cartes avant de mettre à jour une sauvegarde',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    updateCardSet(set.id, { cards: currentCards });
+    setSavedSets(getSavedCardSets(user?.id || ''));
+
+    toast({
+      title: 'Mis à jour',
+      description: `"${set.name}" contient maintenant ${currentCards.length} carte(s)`,
+    });
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -80,56 +132,68 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
     });
   };
 
+  // Filtrer les sauvegardes selon la recherche
+  const filteredSets = savedSets.filter(set =>
+    set.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    set.cards.some(card => 
+      card.nom?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      card.prenoms?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      card.npc?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
   if (!user) return null;
 
   return (
     <div className="flex gap-2">
       {/* Bouton Enregistrer */}
-      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="gap-2"
-            disabled={currentCards.length === 0}
-          >
-            <Save className="w-4 h-4" />
-            Enregistrer
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Enregistrer les cartes</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Nom de la sauvegarde
-              </label>
-              <Input
-                placeholder="Ex: Import du 15 janvier"
-                value={saveName}
-                onChange={(e) => setSaveName(e.target.value)}
-              />
+      {showSaveButton && (
+        <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="gap-2"
+              disabled={currentCards.length === 0}
+            >
+              <Save className="w-4 h-4" />
+              Enregistrer
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enregistrer les cartes</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Nom de la sauvegarde
+                </label>
+                <Input
+                  placeholder="Ex: Import du 15 janvier"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {currentCards.length} carte(s) seront enregistrée(s)
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
+                  Annuler
+                </Button>
+                <Button
+                  className="btn-benin-primary"
+                  onClick={handleSave}
+                  disabled={!saveName.trim()}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Enregistrer
+                </Button>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {currentCards.length} carte(s) seront enregistrée(s)
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button
-                className="btn-benin-primary"
-                onClick={handleSave}
-                disabled={!saveName.trim()}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Enregistrer
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Bouton Charger */}
       <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
@@ -144,6 +208,25 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
             <DialogTitle>Sauvegardes enregistrées</DialogTitle>
           </DialogHeader>
           <div className="pt-4">
+            {/* Barre de recherche */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par nom, NPC..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
             {savedSets.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -152,40 +235,90 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                   Importez un fichier Excel et enregistrez vos cartes
                 </p>
               </div>
+            ) : filteredSets.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Aucun résultat</p>
+                <p className="text-sm">
+                  Essayez un autre terme de recherche
+                </p>
+              </div>
             ) : (
               <div className="space-y-2 max-h-80 overflow-y-auto">
-                {savedSets.map((set) => (
+                {filteredSets.map((set) => (
                   <div
                     key={set.id}
                     className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
                   >
-                    <button
-                      onClick={() => handleLoad(set)}
-                      className="flex-1 text-left"
-                    >
-                      <p className="font-medium text-foreground">{set.name}</p>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                        <span className="flex items-center gap-1">
-                          <CreditCard className="w-3 h-3" />
-                          {set.cards.length} carte(s)
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(set.createdAt)}
-                        </span>
+                    {editingSet?.id === set.id ? (
+                      <div className="flex-1 flex items-center gap-2">
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="h-8"
+                          autoFocus
+                        />
+                        <Button size="sm" onClick={handleSaveEdit}>
+                          OK
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingSet(null)}>
+                          <X className="w-4 h-4" />
+                        </Button>
                       </div>
-                    </button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(set.id, set.name);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleLoad(set)}
+                          className="flex-1 text-left"
+                        >
+                          <p className="font-medium text-foreground">{set.name}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                            <span className="flex items-center gap-1">
+                              <CreditCard className="w-3 h-3" />
+                              {set.cards.length} carte(s)
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {formatDate(set.createdAt)}
+                            </span>
+                          </div>
+                        </button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={(e) => handleStartEdit(set, e)}
+                            title="Renommer"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          {showSaveButton && currentCards.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-primary"
+                              onClick={(e) => handleUpdateCards(set, e)}
+                              title="Mettre à jour avec les cartes actuelles"
+                            >
+                              <Save className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(set.id, set.name);
+                            }}
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

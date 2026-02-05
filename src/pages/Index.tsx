@@ -69,6 +69,15 @@ const Index: React.FC = () => {
               </p>
             </div>
 
+            {/* Bouton pour accéder aux sauvegardes existantes */}
+            <div className="flex justify-center">
+              <SavedCardsManager
+                currentCards={contributors}
+                onLoadCards={handleDataLoaded}
+                showSaveButton={false}
+              />
+            </div>
+
             <FileUploader onDataLoaded={handleDataLoaded} onError={handleError} />
 
             <div className="relative">
