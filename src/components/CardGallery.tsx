@@ -157,11 +157,11 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
               contributor={contributor}
             />
             
-            {/* Boutons d'action */}
-            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Boutons d'action - toujours visibles */}
+            <div className="absolute top-2 right-2 flex gap-1">
               <button
                 onClick={() => handleEditCard(contributor)}
-                className="bg-white/90 hover:bg-white text-secondary p-2 rounded-full shadow-lg"
+                className="bg-white hover:bg-accent text-secondary p-2 rounded-full shadow-lg border border-border"
                 title="Modifier cette carte"
               >
                 <Edit className="w-4 h-4" />
@@ -169,7 +169,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
               <button
                 onClick={() => handleExportSingle(contributor)}
                 disabled={isExporting}
-                className="bg-white/90 hover:bg-white text-primary p-2 rounded-full shadow-lg"
+                className="bg-white hover:bg-accent text-primary p-2 rounded-full shadow-lg border border-border"
                 title="Télécharger cette carte en PDF"
               >
                 <Download className="w-4 h-4" />
