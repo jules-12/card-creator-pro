@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AlertCircle, FileSpreadsheet, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
@@ -10,9 +11,20 @@ import { Contributor } from '@/types/contributor';
 import { generateTestData } from '@/utils/excelParser';
 
 const Index: React.FC = () => {
+  const location = useLocation();
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Récupérer les cartes mises à jour depuis la page d'édition
+  useEffect(() => {
+    if (location.state?.updatedCards) {
+      setContributors(location.state.updatedCards);
+      setHasLoaded(true);
+      // Nettoyer l'état de navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleDataLoaded = (data: Contributor[]) => {
     setContributors(data);

@@ -1,5 +1,6 @@
-import React, { useRef, useCallback } from 'react';
-import { Download, FileDown, Archive, Loader2 } from 'lucide-react';
+import React, { useRef, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CardB2 from './CardB2';
 import { Contributor } from '@/types/contributor';
@@ -10,9 +11,19 @@ interface CardGalleryProps {
 }
 
 const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
+  const navigate = useNavigate();
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [exportProgress, setExportProgress] = React.useState<number | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
+
+  // Stocker les cartes dans sessionStorage pour l'édition
+  useEffect(() => {
+    sessionStorage.setItem('currentCards', JSON.stringify(contributors));
+  }, [contributors]);
+
+  const handleEditCard = (contributor: Contributor) => {
+    navigate(`/edit/${contributor.id}`);
+  };
 
   const setCardRef = useCallback((id: string, element: HTMLDivElement | null) => {
     if (element) {
@@ -146,15 +157,24 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
               contributor={contributor}
             />
             
-            {/* Bouton de téléchargement individuel */}
-            <button
-              onClick={() => handleExportSingle(contributor)}
-              disabled={isExporting}
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white text-primary p-2 rounded-full shadow-lg"
-              title="Télécharger cette carte  en PDF"
-            >
-              <Download className="w-4 h-4" />
-            </button>
+            {/* Boutons d'action */}
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => handleEditCard(contributor)}
+                className="bg-white/90 hover:bg-white text-secondary p-2 rounded-full shadow-lg"
+                title="Modifier cette carte"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handleExportSingle(contributor)}
+                disabled={isExporting}
+                className="bg-white/90 hover:bg-white text-primary p-2 rounded-full shadow-lg"
+                title="Télécharger cette carte en PDF"
+              >
+                <Download className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         ))}
       </div>

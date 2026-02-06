@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import EditCard from "./pages/EditCard";
 import NotFound from "./pages/NotFound";
 
 // Initialize query client
@@ -38,6 +39,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Index />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/edit/:cardId"
+      element={
+        <ProtectedRoute>
+          <EditCard />
         </ProtectedRoute>
       }
     />
