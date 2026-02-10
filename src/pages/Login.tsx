@@ -172,16 +172,6 @@ const Login: React.FC = () => {
               </button>
             </div>
 
-            {/* Comptes de démonstration */}
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-2 font-medium">
-                Comptes de démonstration :
-              </p>
-              <div className="space-y-1 text-xs text-muted-foreground">
-                <p>📧 admin@mairie-cotonou.bj / admin123</p>
-                <p>📧 agent@mairie-cotonou.bj / agent123</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

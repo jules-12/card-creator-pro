@@ -18,8 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Utilisateurs fictifs de démonstration
 const DEMO_USERS: { email: string; password: string; fullName: string }[] = [
-  { email: 'admin@mairie-cotonou.bj', password: 'admin123', fullName: 'Administrateur' },
-  { email: 'agent@mairie-cotonou.bj', password: 'agent123', fullName: 'Agent Municipal' },
+  { email: 'adminctn@gmail.com', password: 'Admin@09', fullName: 'Administrateur' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
