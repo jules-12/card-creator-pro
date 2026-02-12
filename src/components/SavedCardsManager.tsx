@@ -399,8 +399,8 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                     </div>
 
                     {/* Tableau */}
-                    <div className="overflow-auto max-h-[55vh] border rounded-lg">
-                      <Table>
+                    <div className="overflow-x-auto overflow-y-auto max-h-[55vh] border rounded-lg -mx-1 px-1">
+                      <Table className="min-w-[900px]">
                         <TableHeader>
                           <TableRow className="bg-muted/50">
                             <TableHead className="whitespace-nowrap cursor-pointer select-none" onClick={() => handleSort('npc')}>
