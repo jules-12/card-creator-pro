@@ -240,14 +240,14 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
             Mes sauvegardes
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[95vw] max-h-[90vh] w-full">
+        <DialogContent className="max-w-[95vw] max-h-[90vh] w-full overflow-hidden" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>
               {editingCard ? 'Modifier la carte' : viewingCard ? 'Détail de la carte' : 'Mes sauvegardes'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="pt-2">
+          <div className="pt-2 overflow-x-auto overflow-y-auto max-h-[calc(90vh-80px)]">
             {/* Vue édition de carte */}
             {editingCard && editFormData ? (
               <div className="space-y-4">
@@ -399,8 +399,8 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                     </div>
 
                     {/* Tableau */}
-                    <div className="overflow-x-auto overflow-y-auto max-h-[55vh] border rounded-lg -mx-1 px-1">
-                      <Table className="min-w-[900px]">
+                    <div className="overflow-x-auto overflow-y-auto max-h-[50vh] border rounded-lg">
+                      <Table className="min-w-[800px] w-max">
                         <TableHeader>
                           <TableRow className="bg-muted/50">
                             <TableHead className="whitespace-nowrap cursor-pointer select-none" onClick={() => handleSort('npc')}>
