@@ -321,10 +321,10 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                 ) : (
                   <div className="space-y-3">
                     {/* Barre d'outils : sélecteur de sauvegarde + recherche + tri */}
-                    <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Select value={selectedSetId} onValueChange={setSelectedSetId}>
-                          <SelectTrigger className="w-[220px]">
+                          <SelectTrigger className="w-full sm:w-[220px]">
                             <SelectValue placeholder="Sélectionner une sauvegarde" />
                           </SelectTrigger>
                           <SelectContent>
@@ -337,21 +337,21 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                         </Select>
 
                         {selectedSet && (
-                          <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
                             <Calendar className="w-3 h-3 inline mr-1" />
                             {formatDate(selectedSet.createdAt)}
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative flex-1 min-w-[150px]">
                           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input
                             placeholder="Rechercher..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-8 pr-8 w-[200px] h-9"
+                            className="pl-8 pr-8 h-9 w-full"
                           />
                           {searchQuery && (
                             <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -361,7 +361,7 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                         </div>
 
                         <Select value={sortField} onValueChange={(v) => setSortField(v as SortField)}>
-                          <SelectTrigger className="w-[140px] h-9">
+                          <SelectTrigger className="w-[130px] h-9">
                             <Filter className="w-3.5 h-3.5 mr-1" />
                             <SelectValue />
                           </SelectTrigger>
@@ -373,25 +373,27 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                           </SelectContent>
                         </Select>
 
-                        <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setSortDirection(d => d === 'asc' ? 'desc' : 'asc')}>
+                        <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => setSortDirection(d => d === 'asc' ? 'desc' : 'asc')}>
                           {sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </Button>
                       </div>
                     </div>
 
                     {/* Actions globales */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                       <p className="text-sm text-muted-foreground">
                         {filteredAndSortedCards.length} carte(s) {searchQuery && `sur ${selectedSet?.cards.length || 0}`}
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button size="sm" className="btn-benin-primary gap-1" onClick={handleLoadSet} disabled={!selectedSet || selectedSet.cards.length === 0}>
                           <Download className="w-3.5 h-3.5" />
-                          Charger ces cartes
+                          <span className="hidden sm:inline">Charger ces cartes</span>
+                          <span className="sm:hidden">Charger</span>
                         </Button>
                         <Button size="sm" variant="destructive" className="gap-1" onClick={handleDeleteSet} disabled={!selectedSet}>
                           <Trash2 className="w-3.5 h-3.5" />
-                          Supprimer la sauvegarde
+                          <span className="hidden sm:inline">Supprimer la sauvegarde</span>
+                          <span className="sm:hidden">Supprimer</span>
                         </Button>
                       </div>
                     </div>
