@@ -53,7 +53,7 @@ const Index: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
-      <main className="flex-1 container py-8">
+      <main className="flex-1 container py-4 md:py-8 px-3 md:px-4">
         {/* Message d'erreur */}
         {error && (
           <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-3 animate-fade-in">
@@ -70,7 +70,7 @@ const Index: React.FC = () => {
 
         {!hasLoaded ? (
           /* État initial - Zone d'import */
-          <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
+          <div className="max-w-2xl mx-auto space-y-4 md:space-y-6 animate-slide-up">
             <div className="text-center mb-8">
               <h2 className="font-heading text-2xl font-bold text-foreground mb-2">
                 Importez vos données
@@ -120,7 +120,7 @@ const Index: React.FC = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Votre fichier Excel peut contenir les colonnes suivantes :
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {[
                   'N° NPC',
                   'Nom',
@@ -151,7 +151,7 @@ const Index: React.FC = () => {
         ) : (
           /* État avec données - Galerie des cartes */
           <div className="animate-fade-in">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
               <h2 className="font-heading text-xl font-bold text-foreground">
                 Cartes générées
               </h2>
