@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, FolderOpen, Trash2, Calendar, CreditCard, Edit2, Search, X } from 'lucide-react';
+import { Save, FolderOpen, Trash2, Calendar, CreditCard, Edit2, Search, X, ArrowLeft, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -9,6 +9,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { Contributor } from '@/types/contributor';
 import { saveCards, getSavedCardSets, deleteCardSet, updateCardSet, SavedCardSet } from '@/utils/cardStorage';
@@ -34,6 +42,7 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [editingSet, setEditingSet] = useState<SavedCardSet | null>(null);
   const [editName, setEditName] = useState('');
+  const [viewingSet, setViewingSet] = useState<SavedCardSet | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -63,12 +72,18 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
   };
 
   const handleLoad = (set: SavedCardSet) => {
-    onLoadCards(set.cards);
+    setViewingSet(set);
+  };
+
+  const handleConfirmLoad = () => {
+    if (!viewingSet) return;
+    onLoadCards(viewingSet.cards);
+    setViewingSet(null);
     setLoadDialogOpen(false);
 
     toast({
       title: 'Cartes chargées',
-      description: `${set.cards.length} carte(s) restaurée(s) depuis "${set.name}"`,
+      description: `${viewingSet.cards.length} carte(s) restaurée(s) depuis "${viewingSet.name}"`,
     });
   };
 
@@ -203,125 +218,152 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
             Mes sauvegardes
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-5xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Sauvegardes enregistrées</DialogTitle>
-          </DialogHeader>
-          <div className="pt-4">
-            {/* Barre de recherche */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher par nom, NPC..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-9"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+            <DialogTitle className="flex items-center gap-2">
+              {viewingSet && (
+                <Button variant="ghost" size="icon" onClick={() => setViewingSet(null)} className="mr-1">
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
               )}
-            </div>
-
-            {savedSets.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Aucune sauvegarde</p>
-                <p className="text-sm">
-                  Importez un fichier Excel et enregistrez vos cartes
-                </p>
-              </div>
-            ) : filteredSets.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Aucun résultat</p>
-                <p className="text-sm">
-                  Essayez un autre terme de recherche
-                </p>
+              {viewingSet ? viewingSet.name : 'Sauvegardes enregistrées'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="pt-2">
+            {viewingSet ? (
+              /* Vue tableau détaillé */
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-sm text-muted-foreground">{viewingSet.cards.length} carte(s)</p>
+                  <Button className="btn-benin-primary gap-2" onClick={handleConfirmLoad}>
+                    <Download className="w-4 h-4" />
+                    Charger ces cartes
+                  </Button>
+                </div>
+                <div className="overflow-auto max-h-[60vh] border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="whitespace-nowrap">N° NPC</TableHead>
+                        <TableHead className="whitespace-nowrap">Nom</TableHead>
+                        <TableHead className="whitespace-nowrap">Prénoms</TableHead>
+                        <TableHead className="whitespace-nowrap">Tél</TableHead>
+                        <TableHead className="whitespace-nowrap">Personne à contacter</TableHead>
+                        <TableHead className="whitespace-nowrap">Tél contact</TableHead>
+                        <TableHead className="whitespace-nowrap">Propriétaire</TableHead>
+                        <TableHead className="whitespace-nowrap">Tél propriétaire</TableHead>
+                        <TableHead className="whitespace-nowrap">Résidence</TableHead>
+                        <TableHead className="whitespace-nowrap">Caractéristiques Moto</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {viewingSet.cards.map((card) => (
+                        <TableRow key={card.id}>
+                          <TableCell className="whitespace-nowrap">{card.npc || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.nom || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.prenoms || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.telephone || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.personneContact || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.telephoneContact || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.proprietaire || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.telephoneProprietaire || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.residence || '–'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{card.caracteristiquesMoto || '–'}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto">
-                {filteredSets.map((set) => (
-                  <div
-                    key={set.id}
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    {editingSet?.id === set.id ? (
-                      <div className="flex-1 flex items-center gap-2">
-                        <Input
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="h-8"
-                          autoFocus
-                        />
-                        <Button size="sm" onClick={handleSaveEdit}>
-                          OK
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingSet(null)}>
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => handleLoad(set)}
-                          className="flex-1 text-left"
-                        >
-                          <p className="font-medium text-foreground">{set.name}</p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                            <span className="flex items-center gap-1">
-                              <CreditCard className="w-3 h-3" />
-                              {set.cards.length} carte(s)
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(set.createdAt)}
-                            </span>
-                          </div>
-                        </button>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:text-foreground"
-                            onClick={(e) => handleStartEdit(set, e)}
-                            title="Renommer"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          {showSaveButton && currentCards.length > 0 && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-muted-foreground hover:text-primary"
-                              onClick={(e) => handleUpdateCards(set, e)}
-                              title="Mettre à jour avec les cartes actuelles"
-                            >
-                              <Save className="w-4 h-4" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(set.id, set.name);
-                            }}
-                            title="Supprimer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </>
-                    )}
+              /* Vue liste des sauvegardes */
+              <>
+                {/* Barre de recherche */}
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher par nom, NPC..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 pr-9"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {savedSets.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Aucune sauvegarde</p>
+                    <p className="text-sm">Importez un fichier Excel et enregistrez vos cartes</p>
                   </div>
-                ))}
-              </div>
+                ) : filteredSets.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Aucun résultat</p>
+                    <p className="text-sm">Essayez un autre terme de recherche</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+                    {filteredSets.map((set) => (
+                      <div
+                        key={set.id}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                      >
+                        {editingSet?.id === set.id ? (
+                          <div className="flex-1 flex items-center gap-2">
+                            <Input
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              className="h-8"
+                              autoFocus
+                            />
+                            <Button size="sm" onClick={handleSaveEdit}>OK</Button>
+                            <Button size="sm" variant="ghost" onClick={() => setEditingSet(null)}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <button onClick={() => handleLoad(set)} className="flex-1 text-left">
+                              <p className="font-medium text-foreground">{set.name}</p>
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1">
+                                  <CreditCard className="w-3 h-3" />
+                                  {set.cards.length} carte(s)
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {formatDate(set.createdAt)}
+                                </span>
+                              </div>
+                            </button>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={(e) => handleStartEdit(set, e)} title="Renommer">
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              {showSaveButton && currentCards.length > 0 && (
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" onClick={(e) => handleUpdateCards(set, e)} title="Mettre à jour avec les cartes actuelles">
+                                  <Save className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); handleDelete(set.id, set.name); }} title="Supprimer">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </DialogContent>
