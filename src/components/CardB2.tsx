@@ -88,7 +88,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           </div>
 
           {/* Logo Cotonou (droite) */}
-          <div style={{ width: '9mm', height: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '22.5mm', height: '22.5mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
               src={logoGauche}
               alt="Ville de Cotonou"
