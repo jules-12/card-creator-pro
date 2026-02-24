@@ -57,13 +57,13 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '1.5mm 3mm',
+            padding: '2mm 4mm',
             background: 'linear-gradient(180deg, hsl(210 100% 35%) 0%, hsl(210 100% 25%) 100%)',
             flexShrink: 0,
           }}
         >
-          {/* Logo national (gauche) */}
-          <div style={{ width: '9mm', height: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Logo national (gauche) — 250% de 9mm = 22.5mm */}
+          <div style={{ width: '22.5mm', height: '22.5mm', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <img
               src={logoDroit}
               alt="République du Bénin"
@@ -79,7 +79,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             <div style={{ color: 'white', fontSize: '6pt', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>
               MAIRIE DE COTONOU
             </div>
-            <div style={{ color: 'white', fontSize: '4.5pt', fontWeight: 500, fontStyle: 'Montserrat, sans-serif' }}>
+            <div style={{ color: 'white', fontSize: '4.5pt', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
               Direction des Affaires Administratives et Financières DAAF
             </div>
             <div style={{ color: 'white', fontSize: '4.5pt', fontWeight: 500 }}>
@@ -87,8 +87,8 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             </div>
           </div>
 
-          {/* Logo Cotonou (droite) */}
-          <div style={{ width: '9mm', height: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Logo Cotonou (droite) — même hauteur pour alignement horizontal */}
+          <div style={{ width: '22.5mm', height: '22.5mm', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <img
               src={logoGauche}
               alt="Ville de Cotonou"
@@ -97,8 +97,8 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           </div>
         </div>
 
-        {/* Titre principal - positionné à 1.5mm sous le cadre bleu */}
-        <div style={{ textAlign: 'center', paddingTop: '1.5mm', paddingBottom: '0.5mm', paddingLeft: '4mm', paddingRight: '4mm', flexShrink: 0 }}>
+        {/* Titre principal — exactement 1.5mm sous le cadre bleu, centré */}
+        <div style={{ textAlign: 'center', marginTop: '1.5mm', paddingBottom: '0.5mm', paddingLeft: '4mm', paddingRight: '4mm', flexShrink: 0 }}>
           <span
             style={{
               color: 'hsl(354 85% 49%)',
@@ -106,6 +106,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
               fontWeight: 700,
               fontFamily: 'Montserrat, sans-serif',
               letterSpacing: '0.5px',
+              display: 'inline-block',
             }}
           >
             CARTE DE RECENSEMENT TAXI – MOTO
