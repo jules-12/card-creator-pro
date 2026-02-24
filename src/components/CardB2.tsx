@@ -87,8 +87,8 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             </div>
           </div>
 
-          {/* Logo Cotonou (droite) */}
-          <div style={{ width: '9mm', height: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Logo Cotonou (droite) — 150% de 9mm = 13.5mm */}
+          <div style={{ width: '13.5mm', height: '13.5mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
               src={logoGauche}
               alt="Ville de Cotonou"
@@ -171,7 +171,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     <span
       style={{
         color: 'hsl(210 100% 35%)',
-        fontWeight: 600,
+        fontWeight: 800,
         fontSize: '5pt',
         fontFamily: 'Montserrat, sans-serif',
         minWidth: '28mm',
@@ -180,7 +180,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     >
       {label}:
     </span>
-    <span style={{ fontSize: '5pt', fontWeight: 600 }}>{value && value.trim().length > 0 ? value : '–'}</span>
+    <span style={{ fontSize: '5pt', fontWeight: 800 }}>{value && value.trim().length > 0 ? value : '–'}</span>
   </div>
 );
 
