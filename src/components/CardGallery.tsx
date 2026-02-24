@@ -145,20 +145,22 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
       )}
 
       {/* Grille des cartes */}
-      <div className="grid gap-6 justify-items-center">
+      <div className="grid gap-6 justify-items-center overflow-x-auto pb-2">
         {contributors.map((contributor, index) => (
           <div
             key={contributor.id}
-            className="animate-fade-in relative group"
+            className="animate-fade-in relative group min-w-0"
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            <CardB2
-              ref={(el) => setCardRef(contributor.id, el)}
-              contributor={contributor}
-            />
+            <div className="overflow-x-auto">
+              <CardB2
+                ref={(el) => setCardRef(contributor.id, el)}
+                contributor={contributor}
+              />
+            </div>
             
             {/* Boutons d'action - toujours visibles */}
-            <div className="absolute top-2 right-2 flex gap-1">
+            <div className="absolute top-2 right-2 flex gap-1 z-10">
               <button
                 onClick={() => handleEditCard(contributor)}
                 className="bg-white hover:bg-accent text-secondary p-2 rounded-full shadow-lg border border-border"
