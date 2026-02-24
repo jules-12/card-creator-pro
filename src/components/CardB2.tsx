@@ -174,10 +174,11 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
         fontWeight: 800,
         fontSize: '5.8pt',
         fontFamily: 'Montserrat, sans-serif',
-        width: '30mm',
+        width: '33mm',
         flexShrink: 0,
         paddingRight: '1.5mm',
         boxSizing: 'border-box',
+        whiteSpace: 'nowrap',
       }}
     >
       {label} :
