@@ -176,11 +176,15 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
         fontFamily: 'Montserrat, sans-serif',
         width: '30mm',
         flexShrink: 0,
+        paddingRight: '1.5mm',
+        boxSizing: 'border-box',
       }}
     >
       {label} :
     </span>
-    <span style={{ fontSize: '5.8pt', fontWeight: 800 }}>{value && value.trim().length > 0 ? value : '–'}</span>
+    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap' }}>
+      {value && value.trim().length > 0 ? value : '–'}
+    </span>
   </div>
 );
 
