@@ -63,7 +63,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           }}
         >
           {/* Logo national (gauche) */}
-          <div style={{ width: '9mm', height: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '10.8mm', height: '10.8mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
               src={logoDroit}
               alt="République du Bénin"
@@ -88,7 +88,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           </div>
 
           {/* Logo Cotonou (droite) — 150% de 9mm = 13.5mm */}
-          <div style={{ width: '13.5mm', height: '13.5mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '16.2mm', height: '16.2mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
               src={logoGauche}
               alt="Ville de Cotonou"
