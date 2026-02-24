@@ -174,13 +174,13 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
         fontWeight: 800,
         fontSize: '5.8pt',
         fontFamily: 'Montserrat, sans-serif',
-        minWidth: '28mm',
+        width: '30mm',
         flexShrink: 0,
       }}
     >
-      {label}:
+      {label} :
     </span>
-    <span style={{ fontSize: '5.8pt', fontWeight: 800, marginLeft: '1.5mm' }}>{value && value.trim().length > 0 ? value : '–'}</span>
+    <span style={{ fontSize: '5.8pt', fontWeight: 800 }}>{value && value.trim().length > 0 ? value : '–'}</span>
   </div>
 );
 
