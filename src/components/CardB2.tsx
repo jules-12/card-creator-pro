@@ -97,13 +97,13 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           </div>
         </div>
 
-        {/* Titre principal */}
-        <div style={{ textAlign: 'center', padding: '1mm 0', flexShrink: 0 }}>
+        {/* Titre principal - positionné à 1.5mm sous le cadre bleu */}
+        <div style={{ textAlign: 'center', paddingTop: '1.5mm', paddingBottom: '0.5mm', paddingLeft: '4mm', paddingRight: '4mm', flexShrink: 0 }}>
           <span
             style={{
               color: 'hsl(354 85% 49%)',
               fontSize: '7pt',
-              fontWeight: 800,
+              fontWeight: 700,
               fontFamily: 'Montserrat, sans-serif',
               letterSpacing: '0.5px',
             }}
@@ -113,7 +113,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Corps de la carte */}
-        <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', padding: '0 4mm 2mm', minHeight: 0 }}>
           {/* Informations */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
@@ -141,7 +141,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Pied de page */}
-        <div style={{ padding: '0.6mm 3mm 1.8mm', flexShrink: 0 }}>
+        <div style={{ padding: '0.6mm 4mm 1.8mm', flexShrink: 0 }}>
           <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '3.8pt', lineHeight: 1.15, color: 'hsl(210 100% 35%)' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start' }}>
               <span style={{ marginRight: '1mm' }}>•</span>
