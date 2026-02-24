@@ -59,11 +59,11 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
           </div>
 
           {/* Logo République du Bénin (droite) */}
-          <div className="w-[8.75rem] h-[8.75rem] flex items-center justify-center">
+          <div className="w-14 h-14 flex items-center justify-center">
             <img 
               src={logoGauche} 
               alt="Ville de Cotonou" 
-              className="w-[7.5rem] h-[7.5rem] object-contain"
+              className="w-12 h-12 object-contain"
               loading="lazy"
             />
           </div>

@@ -29,11 +29,11 @@ const Header = () => {
                 Mairie de Cotonou - Carte de Recensement Taxi-Moto
               </p>
             </div>
-            <div className="w-20 h-20 md:w-[7.5rem] md:h-[7.5rem] rounded-full bg-secondary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-secondary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
               <img
                 src={logoGauche}
                 alt="Ville de Cotonou"
-                className="w-[3.75rem] h-[3.75rem] md:w-[6.25rem] md:h-[6.25rem] object-contain"
+                className="w-6 h-6 md:w-10 md:h-10 object-contain"
                 loading="lazy"
               />
             </div>
