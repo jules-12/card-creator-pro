@@ -57,7 +57,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '1.5mm 3mm',
+            padding: '0.8mm 3mm',
             background: 'linear-gradient(180deg, hsl(210 100% 35%) 0%, hsl(210 100% 25%) 100%)',
             flexShrink: 0,
           }}
@@ -172,7 +172,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
       style={{
         color: 'hsl(210 100% 35%)',
         fontWeight: 800,
-        fontSize: '5pt',
+        fontSize: '5.8pt',
         fontFamily: 'Montserrat, sans-serif',
         minWidth: '28mm',
         flexShrink: 0,
@@ -180,7 +180,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     >
       {label}:
     </span>
-    <span style={{ fontSize: '5pt', fontWeight: 800 }}>{value && value.trim().length > 0 ? value : '–'}</span>
+    <span style={{ fontSize: '5.8pt', fontWeight: 800 }}>{value && value.trim().length > 0 ? value : '–'}</span>
   </div>
 );
 
