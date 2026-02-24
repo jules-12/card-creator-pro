@@ -142,7 +142,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
 
         {/* Pied de page */}
         <div style={{ padding: '0.6mm 3mm 1.8mm', flexShrink: 0 }}>
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '3.8pt', lineHeight: 1.15, color: 'hsl(210 100% 35%)' }}>
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '4.2pt', lineHeight: 1.3, color: 'hsl(210 100% 35%)' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start' }}>
               <span style={{ marginRight: '1mm' }}>•</span>
               <span>Adresse postale : 03 BP : 1777 Cotonou - BÉNIN .Téléphone : +229 21 30 95 69</span>
