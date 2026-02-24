@@ -50,10 +50,10 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
       <Header />
 
-      <main className="flex-1 container py-4 md:py-8 px-3 md:px-4">
+      <main className="flex-1 container py-4 md:py-8 px-3 md:px-4 overflow-x-hidden">
         {/* Message d'erreur */}
         {error && (
           <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-3 animate-fade-in">
