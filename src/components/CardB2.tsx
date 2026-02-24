@@ -98,7 +98,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Titre principal */}
-        <div style={{ textAlign: 'center', padding: '0.25mm 0', flexShrink: 0 }}>
+        <div style={{ textAlign: 'center', padding: '0.25mm 0', marginTop: '-0.7mm', flexShrink: 0 }}>
           <span
             style={{
               color: 'hsl(354 85% 49%)',
