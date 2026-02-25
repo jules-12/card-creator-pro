@@ -71,7 +71,7 @@ const Login: React.FC = () => {
                 Générateur de Cartes B2
               </p>
             </div>
-            <img src={logoGauche} alt="Logo Bénin" className="h-16 object-contain" />
+            <img src={logoGauche} alt="Logo Bénin" className="h-32 object-contain" />
           </div>
 
           {/* Formulaire */}
