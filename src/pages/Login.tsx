@@ -62,7 +62,7 @@ const Login: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Header avec logos */}
           <div className="flex items-center justify-center gap-4 mb-8">
-            <img src={logoGauche} alt="Logo Bénin" className="h-16 object-contain" />
+            <img src={logoDroit} alt="Logo Mairie" className="h-16 object-contain" />
             <div className="text-center">
               <h1 className="font-heading text-xl font-bold text-foreground">
                 MAIRIE DE COTONOU
@@ -71,7 +71,7 @@ const Login: React.FC = () => {
                 Générateur de Cartes B2
               </p>
             </div>
-            <img src={logoDroit} alt="Logo Mairie" className="h-16 object-contain" />
+            <img src={logoGauche} alt="Logo Bénin" className="h-16 object-contain" />
           </div>
 
           {/* Formulaire */}
