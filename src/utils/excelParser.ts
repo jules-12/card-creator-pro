@@ -23,7 +23,10 @@ const columnMappings: Record<string, string[]> = {
   telephoneProprietaire: ['telproprietaire', 'telephoneproprietaire', 'telproprio'],
   // NOTE: variantes courantes + fautes fréquentes (ex: "Résidance")
   residence: ['residence', 'residance', 'adresse', 'domicile', 'lieu', 'habitation', 'quartier'],
-  caracteristiquesMoto: ['caracteristiquesmoto', 'caracteristique', 'moto', 'caracteristiques', 'vehicule', 'engin', 'immatriculation'],
+  caracteristiquesMoto: ['caracteristiquesmoto', 'caracteristique', 'moto', 'caracteristiques', 'vehicule', 'engin'],
+  marqueEngin: ['marquelengin', 'marquedelengin', 'marque'],
+  numeroChassis: ['numerochassis', 'chassis', 'numchassis', 'nochassis'],
+  immatriculation: ['immatriculation', 'immatriculationanatt', 'anatt'],
   arrondissement: ['arrondissement', 'arrond', 'arr', 'district', 'zone', 'arrondisment'],
 };
 
@@ -272,6 +275,20 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
             return '–';
           };
 
+          // Construire "Caractéristiques Moto" en combinant marque + châssis si colonnes séparées
+          let caracMoto = getValue('caracteristiquesMoto');
+          if (caracMoto === '–') {
+            const marque = getValue('marqueEngin');
+            const chassis = getValue('numeroChassis');
+            if (marque !== '–' && chassis !== '–') {
+              caracMoto = `${marque} / ${chassis}`;
+            } else if (marque !== '–') {
+              caracMoto = marque;
+            } else if (chassis !== '–') {
+              caracMoto = chassis;
+            }
+          }
+
           const contributor: Contributor = {
             id: `contrib-${i}-${Date.now()}`,
             npc: getValue('npc'),
@@ -283,7 +300,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
             proprietaire: getValue('proprietaire'),
             telephoneProprietaire: getValue('telephoneProprietaire'),
             residence: getValue('residence'),
-            caracteristiquesMoto: getValue('caracteristiquesMoto'),
+            caracteristiquesMoto: caracMoto,
             arrondissement: getValue('arrondissement'),
           };
 
