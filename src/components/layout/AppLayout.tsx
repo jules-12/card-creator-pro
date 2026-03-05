@@ -1,19 +1,15 @@
 import React from 'react';
-import Header from './Header';
-import BeninFlagStripe from './BeninFlagStripe';
+import { Outlet } from 'react-router-dom';
+import Header from '@/components/Header';
+import BeninFlagStripe from '@/components/BeninFlagStripe';
 
-interface PageLayoutProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const PageLayout: React.FC<PageLayoutProps> = ({ children, className = '' }) => {
+const AppLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
-      <main className={`flex-1 container py-4 md:py-8 px-3 md:px-4 ${className}`}>
-        {children}
+      <main className="flex-1 container py-4 md:py-8 px-3 md:px-4">
+        <Outlet />
       </main>
 
       <footer className="mt-auto">
@@ -26,4 +22,4 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children, className = '' }) => 
   );
 };
 
-export default PageLayout;
+export default AppLayout;
