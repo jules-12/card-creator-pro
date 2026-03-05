@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import PageLayout from '@/components/PageLayout';
 import FileImportSection from '@/components/FileImportSection';
 import CardGallery from '@/components/CardGallery';
 import SavedCardsManager from '@/components/SavedCardsManager';
