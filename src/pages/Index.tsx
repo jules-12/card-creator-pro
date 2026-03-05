@@ -45,6 +45,7 @@ const Index: React.FC = () => {
       handleDataLoaded(result.contributors);
       if (result.errors?.length) {
         setError(result.errors.join(' | '));
+        setTimeout(() => setError(null), 3000);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de lecture du fichier');
