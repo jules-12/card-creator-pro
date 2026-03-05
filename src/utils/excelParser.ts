@@ -18,7 +18,7 @@ const columnMappings: Record<string, string[]> = {
   prenoms: ['prenom', 'prenoms', 'prnoms', 'prnms', 'firstname', 'givenname', 'given', 'prenomsconducteur'],
   telephone: ['telephone', 'tel', 'phone', 'mobile', 'portable', 'gsm', 'numtel', 'phonenumber', 'telconducteur', 'telephoneconducteur'],
   personneContact: ['personneacontacter', 'personnecontact', 'contact', 'urgence', 'personneurgence'],
-  telephoneContact: ['telcontact', 'telephonecontact', 'telurgence', 'telephonepersonneacontacter'],
+  telephoneContact: ['telcontact', 'telephonecontact', 'telurgence', 'telephonepersonneacontacter', 'telpersonneacontacter'],
   proprietaire: ['proprietaire', 'proprio', 'owner', 'possesseur'],
   telephoneProprietaire: ['telproprietaire', 'telephoneproprietaire', 'telproprio'],
   // NOTE: variantes courantes + fautes fréquentes (ex: "Résidance")
