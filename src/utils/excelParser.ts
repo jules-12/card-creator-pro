@@ -307,8 +307,29 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           contributors.push(contributor);
         }
 
+        // Dédoublonnage par NPC : on garde la première occurrence
+        const seenNpcs = new Set<string>();
+        const uniqueContributors: Contributor[] = [];
+        let duplicateCount = 0;
+
+        for (const c of contributors) {
+          const npcKey = c.npc.trim().toLowerCase();
+          if (npcKey && npcKey !== '–' && seenNpcs.has(npcKey)) {
+            duplicateCount++;
+            continue;
+          }
+          if (npcKey && npcKey !== '–') {
+            seenNpcs.add(npcKey);
+          }
+          uniqueContributors.push(c);
+        }
+
+        if (duplicateCount > 0) {
+          errors.push(`${duplicateCount} doublon(s) de NPC détecté(s) et ignoré(s)`);
+        }
+
         resolve({
-          contributors,
+          contributors: uniqueContributors,
           errors,
           totalRows: Math.max(0, jsonData.length - headerRowIndex - 1),
         });

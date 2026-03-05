@@ -14,6 +14,7 @@ const Index: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [cardType, setCardType] = useState<CardType>('2_roues');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (location.state?.updatedCards) {
@@ -33,10 +34,12 @@ const Index: React.FC = () => {
     const { parseExcelFile } = await import('@/utils/excelParser');
     setError(null);
     setCardType(type);
+    setIsAnalyzing(true);
     try {
       const result = await parseExcelFile(file);
       if (result.contributors.length === 0) {
         setError(result.errors?.[0] ?? 'Aucune donnée valide trouvée');
+        setIsAnalyzing(false);
         return;
       }
       handleDataLoaded(result.contributors);
@@ -45,6 +48,8 @@ const Index: React.FC = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de lecture du fichier');
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -73,7 +78,14 @@ const Index: React.FC = () => {
         </div>
       )}
 
-      {!hasLoaded ? (
+      {isAnalyzing ? (
+        <div className="flex flex-col items-center justify-center gap-4 py-20 animate-fade-in">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground font-medium text-center">
+            Le fichier est en cours d'analyse, veuillez patienter…
+          </p>
+        </div>
+      ) : !hasLoaded ? (
         <FileImportSection
           onFileImport={handleFileImport}
           onLoadTestData={handleLoadTestData}
