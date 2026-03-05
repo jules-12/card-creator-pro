@@ -67,8 +67,8 @@ export const exportSingleCardToPdf = async (
       format: [CARD_WIDTH_MM, CARD_HEIGHT_MM],
     });
 
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    pdf.addImage(imgData, 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+    const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+    pdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
     
     const fileName = `carte-b2-${contributor.npc || contributor.id}.pdf`;
     pdf.save(fileName);
@@ -99,8 +99,8 @@ export const exportAllCardsToPdf = async (
       }
 
       const canvas = await captureCardAsCanvas(cardElements[i]);
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      pdf.addImage(imgData, 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+      const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+      pdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
 
       if (onProgress) {
         onProgress(Math.round(((i + 1) / cardElements.length) * 100));
@@ -137,8 +137,8 @@ export const exportAllCardsToZip = async (
         format: [CARD_WIDTH_MM, CARD_HEIGHT_MM],
       });
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      pdf.addImage(imgData, 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+      const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+      pdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
       
       const pdfBlob = pdf.output('blob');
       const fileName = `carte-b2-${contributors[i].npc || contributors[i].id}.pdf`;
@@ -162,8 +162,8 @@ export const exportAllCardsToZip = async (
       }
 
       const canvas = await captureCardAsCanvas(cardElements[i]);
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      globalPdf.addImage(imgData, 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+      const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+      globalPdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
 
       if (onProgress) {
         onProgress(50 + Math.round(((i + 1) / cardElements.length) * 50));
