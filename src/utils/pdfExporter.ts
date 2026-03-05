@@ -9,7 +9,8 @@ const CARD_WIDTH_MM = 85.6;
 const CARD_HEIGHT_MM = 54;
 
 // DPI élevé pour une fidélité parfaite à l'écran
-const SCALE_FACTOR = 4;
+const SCALE_FACTOR = 3;
+const JPEG_QUALITY = 0.92;
 
 const waitForFonts = async () => {
   if (document.fonts && document.fonts.ready) {
