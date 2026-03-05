@@ -193,7 +193,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     >
       {label} :
     </span>
-    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap' }}>
       {value && value.trim().length > 0 ? value : '–'}
     </span>
   </div>
