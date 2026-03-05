@@ -68,7 +68,8 @@ const EditCard: React.FC = () => {
   }
 
   return (
-    <PageLayout>
+    <>
+
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="shrink-0">
@@ -123,7 +124,7 @@ const EditCard: React.FC = () => {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
 };
 
