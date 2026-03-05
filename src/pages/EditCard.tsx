@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CardB2 from '@/components/CardB2';
-import CardB2 from '@/components/CardB2';
 import { Contributor } from '@/types/contributor';
 import { CONTRIBUTOR_FIELDS, EMPTY_CONTRIBUTOR } from '@/constants/contributorFields';
 import { useToast } from '@/hooks/use-toast';
