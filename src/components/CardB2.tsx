@@ -48,7 +48,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           fontFamily: "'Open Sans', sans-serif",
           background: 'linear-gradient(135deg, hsl(165 40% 85%) 0%, hsl(200 60% 80%) 100%)',
           position: 'relative',
-          overflow: 'visible',
+          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
