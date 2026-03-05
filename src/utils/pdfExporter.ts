@@ -8,16 +8,48 @@ import { Contributor } from '@/types/contributor';
 const CARD_WIDTH_MM = 85.6;
 const CARD_HEIGHT_MM = 54;
 
-// DPI pour une bonne qualité d'impression
-const SCALE_FACTOR = 3;
+// DPI élevé pour une fidélité parfaite à l'écran
+const SCALE_FACTOR = 4;
+
+const waitForFonts = async () => {
+  if (document.fonts && document.fonts.ready) {
+    await document.fonts.ready;
+  }
+};
 
 const captureCardAsCanvas = async (cardElement: HTMLElement): Promise<HTMLCanvasElement> => {
+  await waitForFonts();
+
+  // Force le navigateur à recalculer le layout avant capture
+  cardElement.offsetHeight;
+
   return await html2canvas(cardElement, {
     scale: SCALE_FACTOR,
     useCORS: true,
     allowTaint: true,
     backgroundColor: null,
     logging: false,
+    width: cardElement.scrollWidth,
+    height: cardElement.scrollHeight,
+    windowWidth: cardElement.scrollWidth,
+    windowHeight: cardElement.scrollHeight,
+    onclone: (clonedDoc, clonedElement) => {
+      // S'assurer que tous les éléments du clone sont visibles
+      clonedElement.style.overflow = 'visible';
+      const allChildren = clonedElement.querySelectorAll('*');
+      allChildren.forEach((child) => {
+        const el = child as HTMLElement;
+        if (el.style) {
+          // Empêcher tout clipping de texte dans le PDF
+          if (el.style.overflow === 'hidden') {
+            el.style.overflow = 'visible';
+          }
+          if (el.style.textOverflow === 'ellipsis') {
+            el.style.textOverflow = 'clip';
+          }
+        }
+      });
+    },
   });
 };
 
