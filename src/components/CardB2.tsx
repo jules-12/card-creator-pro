@@ -195,9 +195,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     <span style={{
       fontSize: getAdaptiveFontSize(value),
       fontWeight: 800,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
+      wordBreak: 'break-all',
       minWidth: 0,
     }}>
       {value && value.trim().length > 0 ? value : '–'}
