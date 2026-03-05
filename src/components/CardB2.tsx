@@ -15,27 +15,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
       return s.length > 0 ? s : '–';
     };
 
-    // Abréger les prénoms : garder le premier et le dernier, abréger les intermédiaires
-    const abbreviateName = (nom: string, prenoms: string) => {
-      const n = safe(nom);
-      const p = safe(prenoms);
-      if (p === '–') return n;
-      const parts = p.split(/\s+/).filter(s => s.length > 0);
-      if (parts.length <= 2) return `${n} ${p}`;
-      const abbreviated = parts.map((part, i) => {
-        if (i === 0 || i === parts.length - 1) return part;
-        return `${part[0]}.`;
-      });
-      return `${n} ${abbreviated.join(' ')}`;
-    };
-
-    // Tronquer une valeur si trop longue pour éviter le décalage
-    const truncate = (v: string, max: number) => {
-      if (v.length <= max) return v;
-      return v.substring(0, max - 1) + '…';
-    };
-
-    // Générer les données du QR Code avec tous les champs (COMPLETS, sans abréviation)
+    // Générer les données du QR Code avec tous les champs
     const qrData = [
       `N° NPC: ${safe(contributor.npc)}`,
       `Nom & Prénoms: ${safe(contributor.nom)} ${safe(contributor.prenoms)}`,
@@ -135,20 +115,20 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         {/* Corps de la carte */}
         <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
           {/* Informations */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm', overflow: 'hidden' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
-            <DataRow label="Nom Prénoms conducteur" value={truncate(abbreviateName(contributor.nom, contributor.prenoms), 35)} />
+            <DataRow label="Nom Prénoms conducteur" value={`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim()} />
             <DataRow label="Tél" value={safe(contributor.telephone)} />
-            <DataRow label="Personne à contacter" value={truncate(safe(contributor.personneContact), 30)} />
+            <DataRow label="Personne à contacter" value={safe(contributor.personneContact)} />
             <DataRow label="Tél" value={safe(contributor.telephoneContact)} />
-            <DataRow label="Propriétaire" value={truncate(safe(contributor.proprietaire), 30)} />
+            <DataRow label="Propriétaire" value={safe(contributor.proprietaire)} />
             <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
-            <DataRow label="Résidence" value={truncate(safe(contributor.residence), 28)} />
-            <DataRow label="Caractéristiques Moto" value={truncate(safe(contributor.caracteristiquesMoto), 28)} />
+            <DataRow label="Résidence" value={safe(contributor.residence)} />
+            <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
           </div>
 
-          {/* QR Code — position fixe */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm', width: '18mm', flexShrink: 0 }}>
+          {/* QR Code */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
             <QRCodeSVG
               value={qrData}
               size={55}
