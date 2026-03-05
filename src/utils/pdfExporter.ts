@@ -9,7 +9,7 @@ const CARD_WIDTH_MM = 85.6;
 const CARD_HEIGHT_MM = 54;
 
 // DPI pour une bonne qualité d'impression
-const SCALE_FACTOR = 4;
+const SCALE_FACTOR = 3;
 
 const captureCardAsCanvas = async (cardElement: HTMLElement): Promise<HTMLCanvasElement> => {
   return await html2canvas(cardElement, {
