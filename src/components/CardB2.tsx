@@ -114,8 +114,8 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
 
         {/* Corps de la carte */}
         <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
-          {/* Informations - utilise overflow hidden pour ne jamais pousser le QR */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm', overflow: 'hidden', minWidth: 0 }}>
+          {/* Informations */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
             <DataRow label="Nom Prénoms conducteur" value={`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim()} />
             <DataRow label="Tél" value={safe(contributor.telephone)} />
@@ -127,8 +127,8 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
           </div>
 
-          {/* QR Code - position fixe, ne bouge jamais */}
-          <div style={{ width: '16mm', minWidth: '16mm', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm', flexShrink: 0 }}>
+          {/* QR Code */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
             <QRCodeSVG
               value={qrData}
               size={55}
@@ -165,18 +165,9 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
   }
 );
 
-// Calcule la taille de police adaptative selon la longueur de la valeur
-const getAdaptiveFontSize = (value: string): string => {
-  const len = value.length;
-  if (len > 40) return '4pt';
-  if (len > 30) return '4.6pt';
-  if (len > 20) return '5.2pt';
-  return '5.8pt';
-};
-
 // Composant pour une ligne de données
 const DataRow = ({ label, value }: { label: string; value: string }) => (
-  <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.2, minWidth: 0 }}>
+  <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.2 }}>
     <span
       style={{
         color: 'hsl(210 100% 35%)',
@@ -192,12 +183,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     >
       {label} :
     </span>
-    <span style={{
-      fontSize: getAdaptiveFontSize(value),
-      fontWeight: 800,
-      wordBreak: 'break-all',
-      minWidth: 0,
-    }}>
+    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap' }}>
       {value && value.trim().length > 0 ? value : '–'}
     </span>
   </div>
