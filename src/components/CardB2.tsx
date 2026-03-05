@@ -19,12 +19,6 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
       return s.length > 0 ? s : '–';
     };
 
-    // Limiter l'affichage à 2 mots max (carte uniquement)
-    const truncName = (v: string) => {
-      const words = v.trim().split(/\s+/);
-      return words.slice(0, 2).join(' ');
-    };
-
     // Générer les données du QR Code avec tous les champs
     const qrData = [
       `N° NPC: ${safe(contributor.npc)}`,
@@ -124,22 +118,21 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
 
         {/* Corps de la carte */}
         <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
-          {/* Informations — largeur fixe pour éviter décalage QR */}
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm', overflow: 'hidden' }}>
+          {/* Informations */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
-            <DataRow label="Nom Prénoms conducteur" value={truncName(`${safe(contributor.nom)} ${safe(contributor.prenoms)}`)} />
+            <DataRow label="Nom Prénoms conducteur" value={`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim()} />
             <DataRow label="Tél" value={safe(contributor.telephone)} />
-            <DataRow label="Personne à contacter" value={truncName(safe(contributor.personneContact))} />
+            <DataRow label="Personne à contacter" value={safe(contributor.personneContact)} />
             <DataRow label="Tél" value={safe(contributor.telephoneContact)} />
-            <DataRow label="Propriétaire" value={truncName(safe(contributor.proprietaire))} />
+            <DataRow label="Propriétaire" value={safe(contributor.proprietaire)} />
             <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
             <DataRow label="Résidence" value={safe(contributor.residence)} />
             <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
           </div>
 
           {/* QR Code */}
-          {/* QR Code — position fixe */}
-          <div style={{ width: '18mm', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
             <QRCodeSVG
               value={qrData}
               size={55}
@@ -194,7 +187,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     >
       {label} :
     </span>
-    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap' }}>
       {value && value.trim().length > 0 ? value : '–'}
     </span>
   </div>
