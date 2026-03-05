@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import PageLayout from '@/components/PageLayout';
 import FileImportSection from '@/components/FileImportSection';
 import CardGallery from '@/components/CardGallery';
 import SavedCardsManager from '@/components/SavedCardsManager';
@@ -62,7 +61,7 @@ const Index: React.FC = () => {
   };
 
   return (
-    <PageLayout>
+    <>
       {/* Message d'erreur */}
       {error && (
         <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-3 animate-fade-in">
@@ -99,7 +98,7 @@ const Index: React.FC = () => {
           <CardGallery contributors={contributors} cardType={cardType} />
         </div>
       )}
-    </PageLayout>
+    </>
   );
 };
 

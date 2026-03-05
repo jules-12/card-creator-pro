@@ -4,7 +4,6 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import PageLayout from '@/components/PageLayout';
 import CardB2 from '@/components/CardB2';
 import { Contributor } from '@/types/contributor';
 import { CONTRIBUTOR_FIELDS, EMPTY_CONTRIBUTOR } from '@/constants/contributorFields';
@@ -68,7 +67,8 @@ const EditCard: React.FC = () => {
   }
 
   return (
-    <PageLayout>
+    <>
+
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="shrink-0">
@@ -123,7 +123,7 @@ const EditCard: React.FC = () => {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
 };
 
