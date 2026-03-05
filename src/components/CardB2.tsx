@@ -168,24 +168,26 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
 // Fonction pour calculer la taille de police adaptative
 const getAdaptiveFontSize = (value: string): string => {
   const len = value.length;
-  if (len <= 20) return '5.8pt';
-  if (len <= 30) return '5.2pt';
-  if (len <= 40) return '4.6pt';
-  return '4pt';
+  if (len <= 15) return '5.8pt';
+  if (len <= 22) return '5.4pt';
+  if (len <= 28) return '5pt';
+  if (len <= 35) return '4.5pt';
+  if (len <= 45) return '4pt';
+  return '3.6pt';
 };
 
 // Composant pour une ligne de données
 const DataRow = ({ label, value }: { label: string; value: string }) => (
-  <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.2, overflow: 'hidden' }}>
+  <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.2, overflow: 'hidden', maxWidth: '100%' }}>
     <span
       style={{
         color: 'hsl(210 100% 35%)',
         fontWeight: 800,
-        fontSize: '5.8pt',
+        fontSize: '5pt',
         fontFamily: 'Montserrat, sans-serif',
-        width: '33mm',
+        width: '28mm',
         flexShrink: 0,
-        paddingRight: '1.5mm',
+        paddingRight: '1mm',
         boxSizing: 'border-box',
         whiteSpace: 'nowrap',
       }}
@@ -199,6 +201,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       minWidth: 0,
+      flex: 1,
     }}>
       {value && value.trim().length > 0 ? value : '–'}
     </span>
