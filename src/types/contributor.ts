@@ -1,5 +1,7 @@
 // Types pour le générateur de cartes professionnelles B2
 
+export type CardType = '2_roues' | '3_roues';
+
 export interface Contributor {
   id: string;
   npc: string;

@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CardB2 from './CardB2';
-import { Contributor } from '@/types/contributor';
+import { Contributor, CardType } from '@/types/contributor';
 import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
 
 interface CardGalleryProps {
   contributors: Contributor[];
+  cardType?: CardType;
 }
 
-const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
+const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_roues' }) => {
   const navigate = useNavigate();
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [exportProgress, setExportProgress] = React.useState<number | null>(null);
@@ -155,6 +156,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors }) => {
             <CardB2
               ref={(el) => setCardRef(contributor.id, el)}
               contributor={contributor}
+              cardType={cardType}
             />
             
             {/* Boutons d'action - toujours visibles */}

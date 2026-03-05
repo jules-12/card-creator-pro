@@ -1,15 +1,19 @@
 import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Contributor } from '@/types/contributor';
+import { Contributor, CardType } from '@/types/contributor';
 import logoGauche from '@/assets/logo-gauche.png';
 import logoDroit from '@/assets/logo-droit.png';
 
 interface CardB2Props {
   contributor: Contributor;
+  cardType?: CardType;
 }
 
 const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
-  ({ contributor }, ref) => {
+  ({ contributor, cardType = '2_roues' }, ref) => {
+    const cardTitle = cardType === '3_roues'
+      ? 'CARTE DE RECENSEMENT TAXI – MOTO 3 ROUES'
+      : 'CARTE DE RECENSEMENT TAXI – MOTO 2 ROUES';
     const safe = (v: string | null | undefined) => {
       const s = (v ?? '').toString().trim();
       return s.length > 0 ? s : '–';
@@ -108,7 +112,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
               letterSpacing: '0.5px',
             }}
           >
-            CARTE DE RECENSEMENT TAXI – MOTO
+            {cardTitle}
           </span>
         </div>
 

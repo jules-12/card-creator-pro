@@ -7,7 +7,7 @@ import FileUploader from '@/components/FileUploader';
 import CardGallery from '@/components/CardGallery';
 import SavedCardsManager from '@/components/SavedCardsManager';
 import BeninFlagStripe from '@/components/BeninFlagStripe';
-import { Contributor } from '@/types/contributor';
+import { Contributor, CardType } from '@/types/contributor';
 import { generateTestData } from '@/utils/excelParser';
 
 const Index: React.FC = () => {
@@ -15,6 +15,7 @@ const Index: React.FC = () => {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [cardType, setCardType] = useState<CardType>('2_roues');
 
   // Récupérer les cartes mises à jour depuis la page d'édition
   useEffect(() => {
@@ -34,6 +35,24 @@ const Index: React.FC = () => {
 
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
+  };
+
+  const handleFileImport = async (file: File) => {
+    const { parseExcelFile } = await import('@/utils/excelParser');
+    setError(null);
+    try {
+      const result = await parseExcelFile(file);
+      if (result.contributors.length === 0) {
+        setError(result.errors?.[0] ?? 'Aucune donnée valide trouvée');
+        return;
+      }
+      handleDataLoaded(result.contributors);
+      if (result.errors?.length) {
+        setError(result.errors.join(' | '));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur de lecture du fichier');
+    }
   };
 
   const handleLoadTestData = () => {
@@ -76,8 +95,7 @@ const Index: React.FC = () => {
                 Importez vos données
               </h2>
               <p className="text-muted-foreground">
-                Chargez un fichier Excel contenant les informations des contribuables
-                pour générer automatiquement leurs cartes professionnelles.
+                Choisissez le type de recensement puis chargez votre fichier Excel.
               </p>
             </div>
 
@@ -90,7 +108,72 @@ const Index: React.FC = () => {
               />
             </div>
 
-            <FileUploader onDataLoaded={handleDataLoaded} onError={handleError} />
+            {/* Deux boutons d'import */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                className="drop-zone cursor-pointer flex flex-col items-center gap-3 p-6 border-2 border-dashed rounded-xl hover:border-primary hover:bg-primary/5 transition-colors"
+                onClick={() => {
+                  setCardType('2_roues');
+                  document.getElementById('file-input-2roues')?.click();
+                }}
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileSpreadsheet className="w-7 h-7 text-primary" />
+                </div>
+                <div className="text-center">
+                  <p className="font-heading font-semibold text-foreground mb-1">
+                    Taxi-Moto 2 ROUES
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Importer le fichier des 2 roues
+                  </p>
+                </div>
+                <input
+                  id="file-input-2roues"
+                  type="file"
+                  accept=".xls,.xlsx"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setCardType('2_roues');
+                      handleFileImport(e.target.files[0]);
+                    }
+                  }}
+                />
+              </div>
+
+              <div
+                className="drop-zone cursor-pointer flex flex-col items-center gap-3 p-6 border-2 border-dashed rounded-xl hover:border-primary hover:bg-primary/5 transition-colors"
+                onClick={() => {
+                  setCardType('3_roues');
+                  document.getElementById('file-input-3roues')?.click();
+                }}
+              >
+                <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center">
+                  <FileSpreadsheet className="w-7 h-7 text-secondary" />
+                </div>
+                <div className="text-center">
+                  <p className="font-heading font-semibold text-foreground mb-1">
+                    Taxi-Moto 3 ROUES
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Importer le fichier des 3 roues
+                  </p>
+                </div>
+                <input
+                  id="file-input-3roues"
+                  type="file"
+                  accept=".xls,.xlsx"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setCardType('3_roues');
+                      handleFileImport(e.target.files[0]);
+                    }
+                  }}
+                />
+              </div>
+            </div>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -167,7 +250,7 @@ const Index: React.FC = () => {
               </div>
             </div>
 
-            <CardGallery contributors={contributors} />
+            <CardGallery contributors={contributors} cardType={cardType} />
           </div>
         )}
       </main>
