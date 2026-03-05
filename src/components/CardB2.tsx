@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Contributor, CardType } from '@/types/contributor';
+import { safe, truncName } from '@/utils/textHelpers';
 import logoGauche from '@/assets/logo-gauche.png';
 import logoDroit from '@/assets/logo-droit.png';
 
@@ -14,16 +15,6 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
     const cardTitle = cardType === '3_roues'
       ? 'CARTE DE RECENSEMENT TAXI – MOTO 3 ROUES'
       : 'CARTE DE RECENSEMENT TAXI – MOTO 2 ROUES';
-    const safe = (v: string | null | undefined) => {
-      const s = (v ?? '').toString().trim();
-      return s.length > 0 ? s : '–';
-    };
-
-    // Limiter l'affichage à 2 mots max
-    const truncName = (v: string) => {
-      const words = v.split(/\s+/).filter(w => w.length > 0);
-      return words.slice(0, 2).join(' ') || '–';
-    };
 
     // Générer les données du QR Code avec tous les champs (nom complet)
     const qrData = [
@@ -55,11 +46,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         }}
       >
         {/* Bande supérieure du drapeau */}
-        <div style={{ display: 'flex', width: '100%', height: '0.8mm', flexShrink: 0 }}>
-          <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
-          <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
-          <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
-        </div>
+        <FlagStripe />
 
         {/* En-tête avec logos */}
         <div
@@ -72,14 +59,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             flexShrink: 0,
           }}
         >
-          {/* Logo national (gauche) */}
-          <div style={{ width: '10.8mm', height: '10.8mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img
-              src={logoDroit}
-              alt="République du Bénin"
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-            />
-          </div>
+          <LogoBox src={logoDroit} alt="République du Bénin" size="10.8mm" />
 
           {/* Titres centraux */}
           <div style={{ flex: 1, textAlign: 'center', padding: '0 2mm' }}>
@@ -97,14 +77,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             </div>
           </div>
 
-          {/* Logo Cotonou (droite) — 150% de 9mm = 13.5mm */}
-          <div style={{ width: '16.2mm', height: '16.2mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img
-              src={logoGauche}
-              alt="Ville de Cotonou"
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-            />
-          </div>
+          <LogoBox src={logoGauche} alt="Ville de Cotonou" size="16.2mm" />
         </div>
 
         {/* Titre principal */}
@@ -165,17 +138,29 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Bande inférieure du drapeau */}
-        <div style={{ display: 'flex', width: '100%', height: '0.8mm', flexShrink: 0 }}>
-          <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
-          <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
-          <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
-        </div>
+        <FlagStripe />
       </div>
     );
   }
 );
 
-// Composant pour une ligne de données
+/** Inline flag stripe for the card (not using BeninFlagStripe to avoid Tailwind class issues in PDF) */
+const FlagStripe = () => (
+  <div style={{ display: 'flex', width: '100%', height: '0.8mm', flexShrink: 0 }}>
+    <div style={{ flex: 1, backgroundColor: 'hsl(153 100% 27%)' }} />
+    <div style={{ flex: 1, backgroundColor: 'hsl(48 97% 53%)' }} />
+    <div style={{ flex: 1, backgroundColor: 'hsl(354 85% 49%)' }} />
+  </div>
+);
+
+/** Logo container */
+const LogoBox = ({ src, alt, size }: { src: string; alt: string; size: string }) => (
+  <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <img src={src} alt={alt} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+  </div>
+);
+
+/** Single data row */
 const DataRow = ({ label, value }: { label: string; value: string }) => (
   <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.2 }}>
     <span
