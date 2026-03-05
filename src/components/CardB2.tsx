@@ -125,7 +125,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         {/* Corps de la carte */}
         <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
           {/* Informations */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm', overflow: 'hidden' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
             <DataRow label="Nom Prénoms conducteur" value={truncName(`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim())} />
             <DataRow label="Tél" value={safe(contributor.telephone)} />
