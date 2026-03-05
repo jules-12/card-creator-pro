@@ -113,18 +113,18 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
         </div>
 
         {/* Corps de la carte */}
-        <div style={{ flex: 1, display: 'flex', padding: '0 3mm 2mm', minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', padding: '0.5mm 3mm 1.5mm', minHeight: 0 }}>
           {/* Informations - prend l'espace restant après le QR */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm', overflow: 'hidden', marginRight: '2mm' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.4mm', overflow: 'hidden', marginRight: '2mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
-            <DataRow label="Nom Prénoms conducteur" value={`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim()} />
-            <DataRow label="Tél" value={safe(contributor.telephone)} />
-            <DataRow label="Personne à contacter" value={safe(contributor.personneContact)} />
-            <DataRow label="Tél" value={safe(contributor.telephoneContact)} />
+            <DataRow label="Conducteur" value={`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim()} />
+            <DataRow label="Tél conducteur" value={safe(contributor.telephone)} />
+            <DataRow label="Pers. à contacter" value={safe(contributor.personneContact)} />
+            <DataRow label="Tél contact" value={safe(contributor.telephoneContact)} />
             <DataRow label="Propriétaire" value={safe(contributor.proprietaire)} />
-            <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
+            <DataRow label="Tél propriétaire" value={safe(contributor.telephoneProprietaire)} />
             <DataRow label="Résidence" value={safe(contributor.residence)} />
-            <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
+            <DataRow label="Caract. Moto" value={safe(contributor.caracteristiquesMoto)} />
           </div>
 
           {/* QR Code - taille fixe */}
@@ -168,24 +168,24 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
 // Fonction pour calculer la taille de police adaptative
 const getAdaptiveFontSize = (value: string): string => {
   const len = value.length;
-  if (len <= 15) return '5.8pt';
-  if (len <= 22) return '5.4pt';
-  if (len <= 28) return '5pt';
-  if (len <= 35) return '4.5pt';
-  if (len <= 45) return '4pt';
-  return '3.6pt';
+  if (len <= 12) return '6.5pt';
+  if (len <= 18) return '6pt';
+  if (len <= 25) return '5.5pt';
+  if (len <= 32) return '5pt';
+  if (len <= 40) return '4.5pt';
+  return '4pt';
 };
 
 // Composant pour une ligne de données
 const DataRow = ({ label, value }: { label: string; value: string }) => (
-  <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.2, overflow: 'hidden', maxWidth: '100%' }}>
+  <div style={{ display: 'flex', alignItems: 'baseline', lineHeight: 1.3, overflow: 'hidden', maxWidth: '100%' }}>
     <span
       style={{
         color: 'hsl(210 100% 35%)',
         fontWeight: 800,
-        fontSize: '5pt',
+        fontSize: '5.5pt',
         fontFamily: 'Montserrat, sans-serif',
-        width: '28mm',
+        width: '22mm',
         flexShrink: 0,
         paddingRight: '1mm',
         boxSizing: 'border-box',
@@ -196,7 +196,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
     </span>
     <span style={{
       fontSize: getAdaptiveFontSize(value),
-      fontWeight: 800,
+      fontWeight: 700,
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
