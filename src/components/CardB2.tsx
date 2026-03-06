@@ -106,7 +106,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             <DataRow label="Tél" value={safe(contributor.telephoneContact)} />
             <DataRow label="Propriétaire" value={truncName(safe(contributor.proprietaire))} />
             <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
-            <DataRow label="Résidence" value={safe(contributor.residence)} />
+            <DataRow label="Résidence" value={safe(contributor.residence).substring(0, 16)} />
             <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
           </div>
 
