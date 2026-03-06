@@ -249,15 +249,12 @@ const SavedCardsManager: React.FC<SavedCardsManagerProps> = ({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="relative flex-1 min-w-[150px]">
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input placeholder="Rechercher..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 pr-8 h-9 w-full" />
-                          {searchQuery && (
-                            <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
+                        <SearchInput
+                          value={searchQuery}
+                          onChange={setSearchQuery}
+                          placeholder="Rechercher..."
+                          className="flex-1 min-w-[150px]"
+                        />
 
                         <Select value={sortField} onValueChange={(v) => setSortField(v as SortField)}>
                           <SelectTrigger className="w-[130px] h-9">
