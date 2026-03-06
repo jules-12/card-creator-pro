@@ -1,7 +1,8 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
+import { Download, FileDown, Archive, Loader2, Edit, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import CardB2 from './CardB2';
 import { Contributor, CardType } from '@/types/contributor';
 import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
@@ -14,8 +15,19 @@ interface CardGalleryProps {
 const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_roues' }) => {
   const navigate = useNavigate();
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const [exportProgress, setExportProgress] = React.useState<number | null>(null);
-  const [isExporting, setIsExporting] = React.useState(false);
+  const [exportProgress, setExportProgress] = useState<number | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredContributors = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return contributors;
+    return contributors.filter(c =>
+      c.nom.toLowerCase().includes(q) ||
+      c.prenoms.toLowerCase().includes(q) ||
+      c.npc.toLowerCase().includes(q)
+    );
+  }, [contributors, searchQuery]);
 
   // Stocker les cartes dans sessionStorage pour l'édition
   useEffect(() => {
