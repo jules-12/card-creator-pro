@@ -1,7 +1,8 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
+import { Download, FileDown, Archive, Loader2, Edit, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import CardB2 from './CardB2';
 import { Contributor, CardType } from '@/types/contributor';
 import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
@@ -14,8 +15,19 @@ interface CardGalleryProps {
 const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_roues' }) => {
   const navigate = useNavigate();
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const [exportProgress, setExportProgress] = React.useState<number | null>(null);
-  const [isExporting, setIsExporting] = React.useState(false);
+  const [exportProgress, setExportProgress] = useState<number | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredContributors = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return contributors;
+    return contributors.filter(c =>
+      c.nom.toLowerCase().includes(q) ||
+      c.prenoms.toLowerCase().includes(q) ||
+      c.npc.toLowerCase().includes(q)
+    );
+  }, [contributors, searchQuery]);
 
   // Stocker les cartes dans sessionStorage pour l'édition
   useEffect(() => {
@@ -92,8 +104,26 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-card rounded-xl shadow-sm border">
         <div className="flex items-center gap-2">
           <span className="font-heading font-semibold text-foreground">
-            {contributors.length} carte{contributors.length > 1 ? 's' : ''}  générée{contributors.length > 1 ? 's' : ''}
+            {filteredContributors.length}/{contributors.length} carte{contributors.length > 1 ? 's' : ''}
           </span>
+        </div>
+
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par nom ou NPC…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -147,7 +177,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
 
       {/* Grille des cartes */}
       <div className="grid gap-6 justify-items-center">
-        {contributors.map((contributor, index) => (
+        {filteredContributors.map((contributor, index) => (
           <div
             key={contributor.id}
             className="animate-fade-in relative group"
