@@ -104,8 +104,26 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-card rounded-xl shadow-sm border">
         <div className="flex items-center gap-2">
           <span className="font-heading font-semibold text-foreground">
-            {contributors.length} carte{contributors.length > 1 ? 's' : ''}  générée{contributors.length > 1 ? 's' : ''}
+            {filteredContributors.length}/{contributors.length} carte{contributors.length > 1 ? 's' : ''}
           </span>
+        </div>
+
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par nom ou NPC…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">
