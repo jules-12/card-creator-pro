@@ -4,27 +4,24 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Contributor } from '@/types/contributor';
 
-// Dimensions de la carte B2 en mm (format carte bancaire)
 const CARD_WIDTH_MM = 85.6;
 const CARD_HEIGHT_MM = 54;
 
-// DPI élevé pour une fidélité parfaite à l'écran
-const SCALE_FACTOR = 3;
-const JPEG_QUALITY = 0.92;
+// Optimisé : scale 2 suffit pour la qualité carte bancaire
+const SCALE_FACTOR = 2;
+const JPEG_QUALITY = 0.85;
+
+// Nombre de captures en parallèle
+const BATCH_SIZE = 4;
 
 const waitForFonts = async () => {
-  if (document.fonts && document.fonts.ready) {
+  if (document.fonts?.ready) {
     await document.fonts.ready;
   }
 };
 
 const captureCardAsCanvas = async (cardElement: HTMLElement): Promise<HTMLCanvasElement> => {
-  await waitForFonts();
-
-  // Force le navigateur à recalculer le layout avant capture
-  cardElement.offsetHeight;
-
-  return await html2canvas(cardElement, {
+  return html2canvas(cardElement, {
     scale: SCALE_FACTOR,
     useCORS: true,
     allowTaint: true,
@@ -34,47 +31,62 @@ const captureCardAsCanvas = async (cardElement: HTMLElement): Promise<HTMLCanvas
     height: cardElement.scrollHeight,
     windowWidth: cardElement.scrollWidth,
     windowHeight: cardElement.scrollHeight,
-    onclone: (clonedDoc, clonedElement) => {
-      // S'assurer que tous les éléments du clone sont visibles
+    onclone: (_doc, clonedElement) => {
       clonedElement.style.overflow = 'visible';
-      const allChildren = clonedElement.querySelectorAll('*');
-      allChildren.forEach((child) => {
+      clonedElement.querySelectorAll('*').forEach((child) => {
         const el = child as HTMLElement;
         if (el.style) {
-          // Empêcher tout clipping de texte dans le PDF
-          if (el.style.overflow === 'hidden') {
-            el.style.overflow = 'visible';
-          }
-          if (el.style.textOverflow === 'ellipsis') {
-            el.style.textOverflow = 'clip';
-          }
+          if (el.style.overflow === 'hidden') el.style.overflow = 'visible';
+          if (el.style.textOverflow === 'ellipsis') el.style.textOverflow = 'clip';
         }
       });
     },
   });
 };
 
+/** Capture par lots en parallèle */
+const captureAllCanvases = async (
+  elements: HTMLElement[],
+  onProgress?: (done: number, total: number) => void
+): Promise<HTMLCanvasElement[]> => {
+  const results: HTMLCanvasElement[] = new Array(elements.length);
+  let done = 0;
+
+  for (let i = 0; i < elements.length; i += BATCH_SIZE) {
+    const batch = elements.slice(i, i + BATCH_SIZE);
+    const canvases = await Promise.all(batch.map(el => captureCardAsCanvas(el)));
+    canvases.forEach((c, j) => {
+      results[i + j] = c;
+    });
+    done += canvases.length;
+    onProgress?.(done, elements.length);
+  }
+
+  return results;
+};
+
+const canvasToDataUrl = (canvas: HTMLCanvasElement): string =>
+  canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+
 export const exportSingleCardToPdf = async (
   cardElement: HTMLElement,
   contributor: Contributor
 ): Promise<void> => {
   try {
+    await waitForFonts();
     const canvas = await captureCardAsCanvas(cardElement);
-    
+
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
       format: [CARD_WIDTH_MM, CARD_HEIGHT_MM],
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-    pdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
-    
-    const fileName = `carte-b2-${contributor.npc || contributor.id}.pdf`;
-    pdf.save(fileName);
+    pdf.addImage(canvasToDataUrl(canvas), 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+    pdf.save(`carte-b2-${contributor.npc || contributor.id}.pdf`);
   } catch (error) {
     console.error('Erreur export PDF individuel:', error);
-    throw new Error('Erreur lors de l\'export PDF');
+    throw new Error("Erreur lors de l'export PDF");
   }
 };
 
@@ -82,35 +94,30 @@ export const exportAllCardsToPdf = async (
   cardElements: HTMLElement[],
   onProgress?: (progress: number) => void
 ): Promise<void> => {
-  if (cardElements.length === 0) {
-    throw new Error('Aucune carte à exporter');
-  }
+  if (cardElements.length === 0) throw new Error('Aucune carte à exporter');
 
   try {
+    await waitForFonts();
+
+    const canvases = await captureAllCanvases(cardElements, (done, total) => {
+      onProgress?.(Math.round((done / total) * 100));
+    });
+
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
       format: [CARD_WIDTH_MM, CARD_HEIGHT_MM],
     });
 
-    for (let i = 0; i < cardElements.length; i++) {
-      if (i > 0) {
-        pdf.addPage([CARD_WIDTH_MM, CARD_HEIGHT_MM], 'landscape');
-      }
-
-      const canvas = await captureCardAsCanvas(cardElements[i]);
-      const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-      pdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
-
-      if (onProgress) {
-        onProgress(Math.round(((i + 1) / cardElements.length) * 100));
-      }
+    for (let i = 0; i < canvases.length; i++) {
+      if (i > 0) pdf.addPage([CARD_WIDTH_MM, CARD_HEIGHT_MM], 'landscape');
+      pdf.addImage(canvasToDataUrl(canvases[i]), 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
     }
 
     pdf.save(`cartes-b2-${Date.now()}.pdf`);
   } catch (error) {
     console.error('Erreur export PDF global:', error);
-    throw new Error('Erreur lors de l\'export PDF global');
+    throw new Error("Erreur lors de l'export PDF global");
   }
 };
 
@@ -124,29 +131,31 @@ export const exportAllCardsToZip = async (
   }
 
   try {
-    const zip = new JSZip();
-    const cardsFolder = zip.folder('cartes-b2-individuelles');
+    await waitForFonts();
 
-    // Générer chaque PDF individuel
-    for (let i = 0; i < cardElements.length; i++) {
-      const canvas = await captureCardAsCanvas(cardElements[i]);
-      
+    // Une seule capture par carte (réutilisée pour PDF individuel + global)
+    const canvases = await captureAllCanvases(cardElements, (done, total) => {
+      onProgress?.(Math.round((done / total) * 80));
+    });
+
+    const zip = new JSZip();
+    const cardsFolder = zip.folder('cartes-b2-individuelles')!;
+
+    // Pré-convertir toutes les images une seule fois
+    const imgDataList = canvases.map(canvasToDataUrl);
+
+    // Générer les PDF individuels
+    for (let i = 0; i < canvases.length; i++) {
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: [CARD_WIDTH_MM, CARD_HEIGHT_MM],
       });
-
-      const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-      pdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
-      
-      const pdfBlob = pdf.output('blob');
-      const fileName = `carte-b2-${contributors[i].npc || contributors[i].id}.pdf`;
-      cardsFolder?.file(fileName, pdfBlob);
-
-      if (onProgress) {
-        onProgress(Math.round(((i + 1) / cardElements.length) * 50));
-      }
+      pdf.addImage(imgDataList[i], 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+      cardsFolder.file(
+        `carte-b2-${contributors[i].npc || contributors[i].id}.pdf`,
+        pdf.output('blob')
+      );
     }
 
     // Générer le PDF global
@@ -156,28 +165,20 @@ export const exportAllCardsToZip = async (
       format: [CARD_WIDTH_MM, CARD_HEIGHT_MM],
     });
 
-    for (let i = 0; i < cardElements.length; i++) {
-      if (i > 0) {
-        globalPdf.addPage([CARD_WIDTH_MM, CARD_HEIGHT_MM], 'landscape');
-      }
-
-      const canvas = await captureCardAsCanvas(cardElements[i]);
-      const imgData = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-      globalPdf.addImage(imgData, 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
-
-      if (onProgress) {
-        onProgress(50 + Math.round(((i + 1) / cardElements.length) * 50));
-      }
+    for (let i = 0; i < canvases.length; i++) {
+      if (i > 0) globalPdf.addPage([CARD_WIDTH_MM, CARD_HEIGHT_MM], 'landscape');
+      globalPdf.addImage(imgDataList[i], 'JPEG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
     }
 
-    const globalPdfBlob = globalPdf.output('blob');
-    zip.file('toutes-les-cartes-b2.pdf', globalPdfBlob);
+    zip.file('toutes-les-cartes-b2.pdf', globalPdf.output('blob'));
 
-    // Générer et télécharger le ZIP
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    onProgress?.(90);
+
+    const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 1 } });
     saveAs(zipBlob, `cartes-b2-${Date.now()}.zip`);
+    onProgress?.(100);
   } catch (error) {
     console.error('Erreur export ZIP:', error);
-    throw new Error('Erreur lors de l\'export ZIP');
+    throw new Error("Erreur lors de l'export ZIP");
   }
 };
