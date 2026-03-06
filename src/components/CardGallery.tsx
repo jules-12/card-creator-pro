@@ -132,7 +132,6 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
             </SelectContent>
           </Select>
         </div>
-        </div>
 
         <div className="flex flex-wrap gap-3">
           <Button
