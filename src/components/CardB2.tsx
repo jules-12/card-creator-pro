@@ -115,10 +115,10 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             <QRCodeSVG
               value={qrData}
               size={55}
-              level="M"
+              level="L"
               includeMargin={false}
               bgColor="transparent"
-              fgColor="hsl(0 0% 0%)"
+              fgColor="#000000"
             />
           </div>
         </div>
