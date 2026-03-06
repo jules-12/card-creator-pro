@@ -114,10 +114,24 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
     <div className="space-y-6">
       {/* Barre d'actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-card rounded-xl shadow-sm border">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span className="font-heading font-semibold text-foreground">
-            {contributors.length} carte{contributors.length > 1 ? 's' : ''}  générée{contributors.length > 1 ? 's' : ''}
+            {contributors.length} carte{contributors.length > 1 ? 's' : ''} générée{contributors.length > 1 ? 's' : ''}
           </span>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="w-[200px] h-9">
+              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+              <SelectValue placeholder="Trier par…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Ordre d'import</SelectItem>
+              <SelectItem value="nom_asc">Nom (A → Z)</SelectItem>
+              <SelectItem value="nom_desc">Nom (Z → A)</SelectItem>
+              <SelectItem value="npc_asc">NPC (croissant)</SelectItem>
+              <SelectItem value="npc_desc">NPC (décroissant)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         </div>
 
         <div className="flex flex-wrap gap-3">
