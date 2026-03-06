@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Contributor, CardType } from '@/types/contributor';
-import { safe, truncName } from '@/utils/textHelpers';
+import { safe, truncName, truncMotoDisplay } from '@/utils/textHelpers';
 import logoGauche from '@/assets/logo-gauche.png';
 import logoDroit from '@/assets/logo-droit.png';
 
@@ -107,7 +107,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
             <DataRow label="Propriétaire" value={truncName(safe(contributor.proprietaire))} />
             <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
             <DataRow label="Résidence" value={safe(contributor.residence).substring(0, 16)} />
-            <DataRow label="Caractéristiques Moto" value={safe(contributor.caracteristiquesMoto)} />
+            <DataRow label="Caractéristiques Moto" value={truncMotoDisplay(safe(contributor.caracteristiquesMoto))} />
           </div>
 
           {/* QR Code — position fixe */}
