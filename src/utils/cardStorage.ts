@@ -10,16 +10,9 @@ export interface SavedCardSet {
   cards: Contributor[];
 }
 
-/** Read all sets from localStorage (DRY helper). */
-const readAllSets = (): SavedCardSet[] =>
-  JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-
-/** Write all sets to localStorage (DRY helper). */
-const writeAllSets = (sets: SavedCardSet[]): void =>
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(sets));
-
 export const saveCards = (userId: string, name: string, cards: Contributor[]): SavedCardSet => {
-  const sets = readAllSets();
+  const existingSets = getSavedCardSets(userId);
+  
   const newSet: SavedCardSet = {
     id: `set_${Date.now()}`,
     name,
@@ -27,25 +20,34 @@ export const saveCards = (userId: string, name: string, cards: Contributor[]): S
     createdAt: new Date().toISOString(),
     cards,
   };
-  sets.push(newSet);
-  writeAllSets(sets);
+
+  existingSets.push(newSet);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(existingSets));
+  
   return newSet;
 };
 
-export const getSavedCardSets = (userId: string): SavedCardSet[] =>
-  readAllSets().filter(set => set.userId === userId);
+export const getSavedCardSets = (userId: string): SavedCardSet[] => {
+  const allSets: SavedCardSet[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  return allSets.filter(set => set.userId === userId);
+};
 
-export const getCardSetById = (setId: string): SavedCardSet | null =>
-  readAllSets().find(set => set.id === setId) || null;
+export const getCardSetById = (setId: string): SavedCardSet | null => {
+  const allSets: SavedCardSet[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  return allSets.find(set => set.id === setId) || null;
+};
 
-export const deleteCardSet = (setId: string): void =>
-  writeAllSets(readAllSets().filter(set => set.id !== setId));
+export const deleteCardSet = (setId: string): void => {
+  const allSets: SavedCardSet[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const filtered = allSets.filter(set => set.id !== setId);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+};
 
 export const updateCardSet = (setId: string, updates: Partial<SavedCardSet>): void => {
-  const sets = readAllSets();
-  const index = sets.findIndex(set => set.id === setId);
+  const allSets: SavedCardSet[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const index = allSets.findIndex(set => set.id === setId);
   if (index !== -1) {
-    sets[index] = { ...sets[index], ...updates };
-    writeAllSets(sets);
+    allSets[index] = { ...allSets[index], ...updates };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allSets));
   }
 };
