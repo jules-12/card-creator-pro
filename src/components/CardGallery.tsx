@@ -1,10 +1,13 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
+import { Download, FileDown, Archive, Loader2, Edit, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CardB2 from './CardB2';
 import { Contributor, CardType } from '@/types/contributor';
 import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
+
+type SortOption = 'default' | 'nom_asc' | 'nom_desc' | 'npc_asc' | 'npc_desc';
 
 interface CardGalleryProps {
   contributors: Contributor[];
@@ -16,6 +19,27 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [exportProgress, setExportProgress] = React.useState<number | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('default');
+
+  const sortedContributors = useMemo(() => {
+    if (sortBy === 'default') return contributors;
+    const sorted = [...contributors];
+    sorted.sort((a, b) => {
+      switch (sortBy) {
+        case 'nom_asc':
+          return `${a.nom} ${a.prenoms}`.localeCompare(`${b.nom} ${b.prenoms}`, 'fr');
+        case 'nom_desc':
+          return `${b.nom} ${b.prenoms}`.localeCompare(`${a.nom} ${a.prenoms}`, 'fr');
+        case 'npc_asc':
+          return a.npc.localeCompare(b.npc, 'fr', { numeric: true });
+        case 'npc_desc':
+          return b.npc.localeCompare(a.npc, 'fr', { numeric: true });
+        default:
+          return 0;
+      }
+    });
+    return sorted;
+  }, [contributors, sortBy]);
 
   // Stocker les cartes dans sessionStorage pour l'édition
   useEffect(() => {
@@ -90,10 +114,23 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
     <div className="space-y-6">
       {/* Barre d'actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-card rounded-xl shadow-sm border">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span className="font-heading font-semibold text-foreground">
-            {contributors.length} carte{contributors.length > 1 ? 's' : ''}  générée{contributors.length > 1 ? 's' : ''}
+            {contributors.length} carte{contributors.length > 1 ? 's' : ''} générée{contributors.length > 1 ? 's' : ''}
           </span>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="w-[200px] h-9">
+              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+              <SelectValue placeholder="Trier par…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Ordre d'import</SelectItem>
+              <SelectItem value="nom_asc">Nom (A → Z)</SelectItem>
+              <SelectItem value="nom_desc">Nom (Z → A)</SelectItem>
+              <SelectItem value="npc_asc">NPC (croissant)</SelectItem>
+              <SelectItem value="npc_desc">NPC (décroissant)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -147,7 +184,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
 
       {/* Grille des cartes */}
       <div className="grid gap-6 justify-items-center">
-        {contributors.map((contributor, index) => (
+        {sortedContributors.map((contributor, index) => (
           <div
             key={contributor.id}
             className="animate-fade-in relative group"
