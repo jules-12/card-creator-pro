@@ -5,6 +5,13 @@ import SavedCardsManager from './SavedCardsManager';
 import { Contributor, CardType } from '@/types/contributor';
 import { EXPECTED_COLUMN_LABELS } from '@/constants/contributorFields';
 
+interface FileImportSectionProps {
+  onFileImport: (file: File, cardType: CardType) => void;
+  onLoadTestData: () => void;
+  onLoadCards: (cards: Contributor[]) => void;
+  contributors: Contributor[];
+}
+
 const FileImportSection: React.FC<FileImportSectionProps> = ({
   onFileImport,
   onLoadTestData,
