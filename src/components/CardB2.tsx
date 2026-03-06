@@ -37,7 +37,7 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           width: '85.6mm',
           height: '54mm',
           fontFamily: "'Open Sans', sans-serif",
-          background: 'linear-gradient(135deg, hsl(165 40% 85%) 0%, hsl(200 60% 80%) 100%)',
+          background: 'transparent',
           position: 'relative',
           overflow: 'hidden',
           display: 'flex',
@@ -114,11 +114,11 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           <div style={{ width: '18mm', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
             <QRCodeSVG
               value={qrData}
-              size={55}
-              level="M"
-              includeMargin={false}
-              bgColor="transparent"
-              fgColor="hsl(0 0% 0%)"
+              size={65}
+              level="L"
+              includeMargin={true}
+              bgColor="#ffffff"
+              fgColor="#000000"
             />
           </div>
         </div>
