@@ -177,7 +177,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
 
       {/* Grille des cartes */}
       <div className="grid gap-6 justify-items-center">
-        {contributors.map((contributor, index) => (
+        {filteredContributors.map((contributor, index) => (
           <div
             key={contributor.id}
             className="animate-fade-in relative group"
