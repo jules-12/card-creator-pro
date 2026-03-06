@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Save, FolderOpen, Trash2, Calendar, Edit2, Search, X, ArrowLeft, Download, Eye, ChevronUp, ChevronDown, Filter } from 'lucide-react';
+import { Save, FolderOpen, Trash2, Calendar, Edit2, ArrowLeft, Download, Eye, ChevronUp, ChevronDown, Filter } from 'lucide-react';
+import SearchInput from './SearchInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
