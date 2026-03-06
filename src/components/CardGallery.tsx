@@ -1,10 +1,13 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
+import { Download, FileDown, Archive, Loader2, Edit, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CardB2 from './CardB2';
 import { Contributor, CardType } from '@/types/contributor';
 import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
+
+type SortOption = 'default' | 'nom_asc' | 'nom_desc' | 'npc_asc' | 'npc_desc';
 
 interface CardGalleryProps {
   contributors: Contributor[];
@@ -16,6 +19,27 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [exportProgress, setExportProgress] = React.useState<number | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('default');
+
+  const sortedContributors = useMemo(() => {
+    if (sortBy === 'default') return contributors;
+    const sorted = [...contributors];
+    sorted.sort((a, b) => {
+      switch (sortBy) {
+        case 'nom_asc':
+          return `${a.nom} ${a.prenoms}`.localeCompare(`${b.nom} ${b.prenoms}`, 'fr');
+        case 'nom_desc':
+          return `${b.nom} ${b.prenoms}`.localeCompare(`${a.nom} ${a.prenoms}`, 'fr');
+        case 'npc_asc':
+          return a.npc.localeCompare(b.npc, 'fr', { numeric: true });
+        case 'npc_desc':
+          return b.npc.localeCompare(a.npc, 'fr', { numeric: true });
+        default:
+          return 0;
+      }
+    });
+    return sorted;
+  }, [contributors, sortBy]);
 
   // Stocker les cartes dans sessionStorage pour l'édition
   useEffect(() => {
