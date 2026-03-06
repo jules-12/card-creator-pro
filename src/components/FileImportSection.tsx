@@ -3,6 +3,7 @@ import { FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SavedCardsManager from './SavedCardsManager';
 import { Contributor, CardType } from '@/types/contributor';
+import { EXPECTED_COLUMN_LABELS } from '@/constants/contributorFields';
 
 interface FileImportSectionProps {
   onFileImport: (file: File, cardType: CardType) => void;
@@ -10,12 +11,6 @@ interface FileImportSectionProps {
   onLoadCards: (cards: Contributor[]) => void;
   contributors: Contributor[];
 }
-
-const EXPECTED_COLUMNS = [
-  'N° NPC', 'Nom', 'Prénom(s)', 'Téléphone',
-  'Personne à contacter', 'Tél contact', 'Propriétaire',
-  'Tél propriétaire', 'Résidence', 'Caractéristiques Moto',
-];
 
 const FileImportSection: React.FC<FileImportSectionProps> = ({
   onFileImport,
@@ -90,7 +85,7 @@ const FileImportSection: React.FC<FileImportSectionProps> = ({
           Votre fichier Excel peut contenir les colonnes suivantes :
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-          {EXPECTED_COLUMNS.map((col) => (
+          {EXPECTED_COLUMN_LABELS.map((col) => (
             <div
               key={col}
               className="bg-card px-3 py-2 rounded-lg text-center text-sm font-medium text-foreground border"
