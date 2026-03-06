@@ -20,6 +20,9 @@ export const CONTRIBUTOR_FIELDS: ContributorFieldDef[] = [
   { key: 'caracteristiquesMoto', label: 'Caractéristiques Moto', placeholder: 'Marque, modèle, plaque...' },
 ];
 
+/** Column labels derived from CONTRIBUTOR_FIELDS for Excel instructions (DRY). */
+export const EXPECTED_COLUMN_LABELS: string[] = CONTRIBUTOR_FIELDS.map(f => f.label);
+
 export const EMPTY_CONTRIBUTOR: Contributor = {
   id: '',
   npc: '',

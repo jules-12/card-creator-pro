@@ -1,11 +1,11 @@
-import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FileDown, Archive, Loader2, Edit, Search, X } from 'lucide-react';
+import { Download, FileDown, Archive, Loader2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import SearchInput from './SearchInput';
 import CardB2 from './CardB2';
 import { Contributor, CardType } from '@/types/contributor';
-import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
+import { useCardExport } from '@/hooks/useCardExport';
 
 interface CardGalleryProps {
   contributors: Contributor[];
@@ -14,10 +14,8 @@ interface CardGalleryProps {
 
 const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_roues' }) => {
   const navigate = useNavigate();
-  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const [exportProgress, setExportProgress] = useState<number | null>(null);
-  const [isExporting, setIsExporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { setCardRef, isExporting, exportProgress, exportSingle, exportAllPdf, exportZip } = useCardExport();
 
   const filteredContributors = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -34,69 +32,26 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
     sessionStorage.setItem('currentCards', JSON.stringify(contributors));
   }, [contributors]);
 
-  const handleEditCard = (contributor: Contributor) => {
-    navigate(`/edit/${contributor.id}`);
-  };
-
-  const setCardRef = useCallback((id: string, element: HTMLDivElement | null) => {
-    if (element) {
-      cardRefs.current.set(id, element);
-    } else {
-      cardRefs.current.delete(id);
-    }
-  }, []);
-
-  const handleExportSingle = async (contributor: Contributor) => {
-    const cardElement = cardRefs.current.get(contributor.id);
-    if (!cardElement) return;
-
-    setIsExporting(true);
-    try {
-      await exportSingleCardToPdf(cardElement, contributor);
-    } catch (error) {
-      console.error('Erreur export:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportAllPdf = async () => {
-    const elements = contributors
-      .map(c => cardRefs.current.get(c.id))
-      .filter((el): el is HTMLDivElement => el !== undefined);
-
-    if (elements.length === 0) return;
-
-    setIsExporting(true);
-    setExportProgress(0);
-    try {
-      await exportAllCardsToPdf(elements, setExportProgress);
-    } catch (error) {
-      console.error('Erreur export:', error);
-    } finally {
-      setIsExporting(false);
-      setExportProgress(null);
-    }
-  };
-
-  const handleExportZip = async () => {
-    const elements = contributors
-      .map(c => cardRefs.current.get(c.id))
-      .filter((el): el is HTMLDivElement => el !== undefined);
-
-    if (elements.length === 0) return;
-
-    setIsExporting(true);
-    setExportProgress(0);
-    try {
-      await exportAllCardsToZip(elements, contributors, setExportProgress);
-    } catch (error) {
-      console.error('Erreur export:', error);
-    } finally {
-      setIsExporting(false);
-      setExportProgress(null);
-    }
-  };
+  const ExportButton: React.FC<{
+    onClick: () => void;
+    label: string;
+    icon: React.ReactNode;
+    className: string;
+  }> = ({ onClick, label, icon, className }) => (
+    <Button onClick={onClick} disabled={isExporting} className={className}>
+      {isExporting && exportProgress !== null ? (
+        <>
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          {exportProgress}%
+        </>
+      ) : (
+        <>
+          {icon}
+          {label}
+        </>
+      )}
+    </Button>
+  );
 
   return (
     <div className="space-y-6">
@@ -108,60 +63,26 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
           </span>
         </div>
 
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher par nom ou NPC…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-9"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Rechercher par nom ou NPC…"
+          className="w-full sm:w-64"
+        />
 
         <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={handleExportAllPdf}
-            disabled={isExporting}
+          <ExportButton
+            onClick={() => exportAllPdf(contributors)}
+            label="PDF Global"
+            icon={<FileDown className="w-4 h-4 mr-2" />}
             className="btn-benin-secondary"
-          >
-            {isExporting && exportProgress !== null ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {exportProgress}%
-              </>
-            ) : (
-              <>
-                <FileDown className="w-4 h-4 mr-2" />
-                PDF Global
-              </>
-            )}
-          </Button>
-
-          <Button
-            onClick={handleExportZip}
-            disabled={isExporting}
+          />
+          <ExportButton
+            onClick={() => exportZip(contributors)}
+            label="Télécharger ZIP"
+            icon={<Archive className="w-4 h-4 mr-2" />}
             className="btn-benin-primary"
-          >
-            {isExporting && exportProgress !== null ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {exportProgress}%
-              </>
-            ) : (
-              <>
-                <Archive className="w-4 h-4 mr-2" />
-                Télécharger ZIP
-              </>
-            )}
-          </Button>
+          />
         </div>
       </div>
 
@@ -192,14 +113,14 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
             {/* Boutons d'action - toujours visibles */}
             <div className="absolute top-2 right-2 flex gap-1">
               <button
-                onClick={() => handleEditCard(contributor)}
+                onClick={() => navigate(`/edit/${contributor.id}`)}
                 className="bg-white hover:bg-accent text-secondary p-2 rounded-full shadow-lg border border-border"
                 title="Modifier cette carte"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
-                onClick={() => handleExportSingle(contributor)}
+                onClick={() => exportSingle(contributor)}
                 disabled={isExporting}
                 className="bg-white hover:bg-accent text-primary p-2 rounded-full shadow-lg border border-border"
                 title="Télécharger cette carte en PDF"
