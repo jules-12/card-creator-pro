@@ -10,6 +10,17 @@ export const truncName = (v: string, maxWords = 2): string => {
   return words.slice(0, maxWords).join(' ') || '–';
 };
 
+/** Truncate moto brand to first word, keep full chassis number.
+ *  Input format: "Marque1 Marque2 / Chassis123" → "Marque1 / Chassis123" */
+export const truncMotoDisplay = (v: string): string => {
+  const sep = v.indexOf('/');
+  if (sep === -1) return v;
+  const brand = v.substring(0, sep).trim();
+  const chassis = v.substring(sep + 1).trim();
+  const firstWord = brand.split(/\s+/)[0] || brand;
+  return `${firstWord} / ${chassis}`;
+};
+
 /** Format ISO date string to French locale */
 export const formatDateFr = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('fr-FR', {
