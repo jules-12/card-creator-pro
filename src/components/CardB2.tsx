@@ -112,16 +112,14 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
 
           {/* QR Code — position fixe */}
           <div style={{ width: '18mm', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '2mm' }}>
-            <div style={{ background: '#FFFFFF', padding: '1.5mm', borderRadius: '1mm' }}>
-              <QRCodeSVG
-                value={qrData}
-                size={55}
-                level="M"
-                includeMargin={false}
-                bgColor="#FFFFFF"
-                fgColor="#000000"
-              />
-            </div>
+            <QRCodeSVG
+              value={qrData}
+              size={55}
+              level="M"
+              includeMargin={false}
+              bgColor="transparent"
+              fgColor="hsl(0 0% 0%)"
+            />
           </div>
         </div>
 
