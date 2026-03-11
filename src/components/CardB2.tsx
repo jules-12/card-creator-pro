@@ -167,7 +167,7 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
       style={{
         color: 'hsl(210 100% 35%)',
         fontWeight: 800,
-        fontSize: '5.8pt',
+        fontSize: '5pt',
         fontFamily: 'Montserrat, sans-serif',
         width: '25mm',
         flexShrink: 0,
