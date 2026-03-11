@@ -100,14 +100,14 @@ const CardB2 = forwardRef<HTMLDivElement, CardB2Props>(
           {/* Informations */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3mm' }}>
             <DataRow label="N° NPC" value={safe(contributor.npc)} />
-            <DataRow label="Nom Prénoms conducteur" value={truncName(`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim())} />
+            <DataRow label="Nom & Prén." value={truncName(`${safe(contributor.nom)} ${safe(contributor.prenoms)}`.trim(), 3)} />
             <DataRow label="Tél" value={safe(contributor.telephone)} />
-            <DataRow label="Personne à contacter" value={truncName(safe(contributor.personneContact))} />
-            <DataRow label="Tél" value={safe(contributor.telephoneContact)} />
-            <DataRow label="Propriétaire" value={truncName(safe(contributor.proprietaire))} />
-            <DataRow label="Tél" value={safe(contributor.telephoneProprietaire)} />
-            <DataRow label="Résidence" value={safe(contributor.residence).substring(0, 16)} />
-            <DataRow label="Caractéristiques Moto" value={truncMotoDisplay(safe(contributor.caracteristiquesMoto))} />
+            <DataRow label="Pers. à contacter" value={truncName(safe(contributor.personneContact), 3)} />
+            <DataRow label="Tél contact" value={safe(contributor.telephoneContact)} />
+            <DataRow label="Propriétaire" value={truncName(safe(contributor.proprietaire), 3)} />
+            <DataRow label="Tél proprio." value={safe(contributor.telephoneProprietaire)} />
+            <DataRow label="Résidence" value={safe(contributor.residence).substring(0, 20)} />
+            <DataRow label="Caract. Moto" value={truncMotoDisplay(safe(contributor.caracteristiquesMoto))} />
           </div>
 
           {/* QR Code — position fixe */}
@@ -167,18 +167,18 @@ const DataRow = ({ label, value }: { label: string; value: string }) => (
       style={{
         color: 'hsl(210 100% 35%)',
         fontWeight: 800,
-        fontSize: '5.8pt',
+        fontSize: '5pt',
         fontFamily: 'Montserrat, sans-serif',
-        width: '33mm',
+        width: '25mm',
         flexShrink: 0,
-        paddingRight: '1.5mm',
+        paddingRight: '0.5mm',
         boxSizing: 'border-box',
         whiteSpace: 'nowrap',
       }}
     >
       {label} :
     </span>
-    <span style={{ fontSize: '5.8pt', fontWeight: 800, whiteSpace: 'nowrap' }}>
+    <span style={{ fontSize: '5pt', fontWeight: 800, whiteSpace: 'nowrap' }}>
       {value && value.trim().length > 0 ? value : '–'}
     </span>
   </div>
