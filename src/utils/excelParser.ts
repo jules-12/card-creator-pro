@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { Contributor, ParsedExcelData } from '@/types/contributor';
+import { normalizeBeninPhone } from '@/utils/textHelpers';
 
 // Normaliser les noms de colonnes pour être plus tolérant
 const normalizeColumnName = (name: string): string => {
