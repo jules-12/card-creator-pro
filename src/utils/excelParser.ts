@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { Contributor, ParsedExcelData } from '@/types/contributor';
+import { normalizeBeninPhone } from '@/utils/textHelpers';
 
 // Normaliser les noms de colonnes pour être plus tolérant
 const normalizeColumnName = (name: string): string => {
@@ -294,11 +295,11 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
             npc: getValue('npc'),
             nom: getValue('nom'),
             prenoms: getValue('prenoms'),
-            telephone: getValue('telephone'),
+            telephone: normalizeBeninPhone(getValue('telephone')),
             personneContact: getValue('personneContact'),
-            telephoneContact: getValue('telephoneContact'),
+            telephoneContact: normalizeBeninPhone(getValue('telephoneContact')),
             proprietaire: getValue('proprietaire'),
-            telephoneProprietaire: getValue('telephoneProprietaire'),
+            telephoneProprietaire: normalizeBeninPhone(getValue('telephoneProprietaire')),
             residence: getValue('residence'),
             caracteristiquesMoto: caracMoto,
             arrondissement: getValue('arrondissement'),
