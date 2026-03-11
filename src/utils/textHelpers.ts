@@ -31,3 +31,13 @@ export const formatDateFr = (dateString: string): string => {
     minute: '2-digit',
   });
 };
+
+/** Normalise un numéro de téléphone béninois à 10 chiffres.
+ *  - 8 chiffres → préfixe "01"
+ *  - 10 chiffres → inchangé
+ *  - Autre → retourné tel quel */
+export const normalizeBeninPhone = (v: string): string => {
+  const digits = v.replace(/\D/g, '');
+  if (digits.length === 8) return '01' + digits;
+  return digits.length > 0 ? digits : v;
+};
