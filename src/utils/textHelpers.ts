@@ -5,7 +5,7 @@ export const safe = (v: string | null | undefined): string => {
 };
 
 /** Truncate to first N words (default 2) */
-export const truncName = (v: string, maxWords = 2): string => {
+export const truncName = (v: string, maxWords = 4): string => {
   const words = v.split(/\s+/).filter(w => w.length > 0);
   return words.slice(0, maxWords).join(' ') || '–';
 };
