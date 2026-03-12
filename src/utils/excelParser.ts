@@ -69,13 +69,11 @@ const findColumnKey = (header: string): string | null => {
 export const MAX_ROWS = 10_000;
 export const MAX_PROCESSING_TIME_S = 30;
 
-export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
-  const yieldToUi = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
-
+export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => void): Promise<ParsedExcelData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
       try {
         const data = e.target?.result;
         if (!data) throw new Error('Aucune donnée à lire');
@@ -132,10 +130,23 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
         // Lancer le timer de traitement
         const startTime = Date.now();
+        let countdownInterval: ReturnType<typeof setInterval> | null = null;
+        if (onCountdown) {
+          onCountdown(MAX_PROCESSING_TIME_S);
+          countdownInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = MAX_PROCESSING_TIME_S - elapsed;
+            onCountdown(Math.max(0, remaining));
+          }, 1000);
+        }
+
+        const clearTimer = () => {
+          if (countdownInterval) clearInterval(countdownInterval);
+        };
 
         const checkTimeout = (): boolean => {
           if (Date.now() - startTime > MAX_PROCESSING_TIME_S * 1000) {
-            
+            clearTimer();
             resolve({
               contributors: [],
               errors: [`Le temps de traitement maximal (${MAX_PROCESSING_TIME_S}s) a été atteint. Veuillez réduire la taille du fichier.`],
@@ -291,11 +302,8 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
         // Parser chaque ligne de données
         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-          // Vérifier timeout + céder le thread UI régulièrement
-          if ((i - headerRowIndex) % 200 === 0) {
-            if (checkTimeout()) return;
-            await yieldToUi();
-          }
+          // Vérifier le timeout toutes les 500 lignes
+          if ((i - headerRowIndex) % 500 === 0 && checkTimeout()) return;
 
           const row = jsonData[i];
 
@@ -351,13 +359,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const uniqueContributors: Contributor[] = [];
         let duplicateCount = 0;
 
-        for (let i = 0; i < contributors.length; i++) {
-          if (i % 500 === 0) {
-            if (checkTimeout()) return;
-            await yieldToUi();
-          }
-
-          const c = contributors[i];
+        for (const c of contributors) {
           const npcKey = c.npc.trim().toLowerCase();
           if (npcKey && npcKey !== '–' && seenNpcs.has(npcKey)) {
             duplicateCount++;
@@ -373,7 +375,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           errors.push(`${duplicateCount} doublon(s) de NPC détecté(s) et ignoré(s)`);
         }
 
-        
+        clearTimer();
         resolve({
           contributors: uniqueContributors,
           errors,
