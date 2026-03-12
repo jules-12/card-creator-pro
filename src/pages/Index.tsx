@@ -115,11 +115,9 @@ const Index: React.FC = () => {
           <p className="text-muted-foreground font-medium text-center">
             Le fichier est en cours d'analyse, veuillez patienter…
           </p>
-          {countdown !== null && (
-            <p className="text-sm font-mono text-primary font-bold">
-              Temps restant : {countdown}s
-            </p>
-          )}
+          <p className="text-lg font-mono text-primary font-bold tabular-nums">
+            ⏱ Temps restant : {countdown}s
+          </p>
         </div>
       ) : !hasLoaded ? (
         <FileImportSection
