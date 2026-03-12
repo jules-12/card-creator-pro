@@ -66,7 +66,10 @@ const findColumnKey = (header: string): string | null => {
   return null;
 };
 
-export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
+export const MAX_ROWS = 10_000;
+export const MAX_PROCESSING_TIME_S = 30;
+
+export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => void): Promise<ParsedExcelData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
