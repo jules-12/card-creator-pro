@@ -13,8 +13,9 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { Contributor } from '@/types/contributor';
-import { CONTRIBUTOR_FIELDS } from '@/constants/contributorFields';
 import { saveCards, getSavedCardSets, deleteCardSet, updateCardSet, SavedCardSet } from '@/utils/cardStorage';
+import CardDetailView from '@/components/cards/CardDetailView';
+import CardEditView from '@/components/cards/CardEditView';
 import { formatDateFr } from '@/utils/textHelpers';
 import { useToast } from '@/hooks/use-toast';
 
