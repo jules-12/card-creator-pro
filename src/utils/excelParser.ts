@@ -70,10 +70,12 @@ export const MAX_ROWS = 10_000;
 export const MAX_PROCESSING_TIME_S = 30;
 
 export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
+  const yieldToUi = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = e.target?.result;
         if (!data) throw new Error('Aucune donnée à lire');
@@ -289,8 +291,11 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
         // Parser chaque ligne de données
         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-          // Vérifier le timeout toutes les 500 lignes
-          if ((i - headerRowIndex) % 500 === 0 && checkTimeout()) return;
+          // Vérifier timeout + céder le thread UI régulièrement
+          if ((i - headerRowIndex) % 200 === 0) {
+            if (checkTimeout()) return;
+            await yieldToUi();
+          }
 
           const row = jsonData[i];
 
@@ -346,7 +351,13 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const uniqueContributors: Contributor[] = [];
         let duplicateCount = 0;
 
-        for (const c of contributors) {
+        for (let i = 0; i < contributors.length; i++) {
+          if (i % 500 === 0) {
+            if (checkTimeout()) return;
+            await yieldToUi();
+          }
+
+          const c = contributors[i];
           const npcKey = c.npc.trim().toLowerCase();
           if (npcKey && npcKey !== '–' && seenNpcs.has(npcKey)) {
             duplicateCount++;
