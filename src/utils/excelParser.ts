@@ -302,6 +302,9 @@ export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => 
 
         // Parser chaque ligne de données
         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+          // Vérifier le timeout toutes les 500 lignes
+          if ((i - headerRowIndex) % 500 === 0 && checkTimeout()) return;
+
           const row = jsonData[i];
 
           if (!row || row.every((cell) => cell === undefined || cell === null || String(cell).trim() === '')) {
