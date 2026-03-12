@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Spinner from '@/components/ui/spinner';
 import { useLocation } from 'react-router-dom';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -87,7 +88,7 @@ const Index: React.FC = () => {
 
       {isAnalyzing ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20 animate-fade-in">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <Spinner size="lg" />
           <p className="text-muted-foreground font-medium text-center">
             Le fichier est en cours d'analyse, veuillez patienter…
           </p>
