@@ -70,10 +70,12 @@ export const MAX_ROWS = 10_000;
 export const MAX_PROCESSING_TIME_S = 30;
 
 export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
+  const yieldToUi = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = e.target?.result;
         if (!data) throw new Error('Aucune donnée à lire');
