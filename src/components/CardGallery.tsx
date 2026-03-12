@@ -1,11 +1,11 @@
-import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Download, FileDown, Archive, Loader2, Edit, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CardB2 from './CardB2';
 import { Contributor, CardType } from '@/types/contributor';
-import { exportSingleCardToPdf, exportAllCardsToPdf, exportAllCardsToZip } from '@/utils/pdfExporter';
+import { useCardExport } from '@/hooks/useCardExport';
 
 interface CardGalleryProps {
   contributors: Contributor[];
@@ -14,10 +14,8 @@ interface CardGalleryProps {
 
 const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_roues' }) => {
   const navigate = useNavigate();
-  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const [exportProgress, setExportProgress] = useState<number | null>(null);
-  const [isExporting, setIsExporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { setCardRef, isExporting, exportProgress, exportSingle, exportAllPdf, exportZip } = useCardExport(contributors);
 
   const filteredContributors = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -29,78 +27,14 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
     );
   }, [contributors, searchQuery]);
 
-  // Stocker les cartes dans sessionStorage pour l'édition
+  // Store cards in sessionStorage for editing
   useEffect(() => {
     sessionStorage.setItem('currentCards', JSON.stringify(contributors));
   }, [contributors]);
 
-  const handleEditCard = (contributor: Contributor) => {
-    navigate(`/edit/${contributor.id}`);
-  };
-
-  const setCardRef = useCallback((id: string, element: HTMLDivElement | null) => {
-    if (element) {
-      cardRefs.current.set(id, element);
-    } else {
-      cardRefs.current.delete(id);
-    }
-  }, []);
-
-  const handleExportSingle = async (contributor: Contributor) => {
-    const cardElement = cardRefs.current.get(contributor.id);
-    if (!cardElement) return;
-
-    setIsExporting(true);
-    try {
-      await exportSingleCardToPdf(cardElement, contributor);
-    } catch (error) {
-      console.error('Erreur export:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportAllPdf = async () => {
-    const elements = contributors
-      .map(c => cardRefs.current.get(c.id))
-      .filter((el): el is HTMLDivElement => el !== undefined);
-
-    if (elements.length === 0) return;
-
-    setIsExporting(true);
-    setExportProgress(0);
-    try {
-      await exportAllCardsToPdf(elements, setExportProgress);
-    } catch (error) {
-      console.error('Erreur export:', error);
-    } finally {
-      setIsExporting(false);
-      setExportProgress(null);
-    }
-  };
-
-  const handleExportZip = async () => {
-    const elements = contributors
-      .map(c => cardRefs.current.get(c.id))
-      .filter((el): el is HTMLDivElement => el !== undefined);
-
-    if (elements.length === 0) return;
-
-    setIsExporting(true);
-    setExportProgress(0);
-    try {
-      await exportAllCardsToZip(elements, contributors, setExportProgress);
-    } catch (error) {
-      console.error('Erreur export:', error);
-    } finally {
-      setIsExporting(false);
-      setExportProgress(null);
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* Barre d'actions */}
+      {/* Action bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-card rounded-xl shadow-sm border">
         <div className="flex items-center gap-2">
           <span className="font-heading font-semibold text-foreground">
@@ -127,45 +61,26 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={handleExportAllPdf}
+          <ExportButton
+            onClick={exportAllPdf}
             disabled={isExporting}
+            progress={exportProgress}
             className="btn-benin-secondary"
-          >
-            {isExporting && exportProgress !== null ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {exportProgress}%
-              </>
-            ) : (
-              <>
-                <FileDown className="w-4 h-4 mr-2" />
-                PDF Global
-              </>
-            )}
-          </Button>
-
-          <Button
-            onClick={handleExportZip}
+            icon={<FileDown className="w-4 h-4 mr-2" />}
+            label="PDF Global"
+          />
+          <ExportButton
+            onClick={exportZip}
             disabled={isExporting}
+            progress={exportProgress}
             className="btn-benin-primary"
-          >
-            {isExporting && exportProgress !== null ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {exportProgress}%
-              </>
-            ) : (
-              <>
-                <Archive className="w-4 h-4 mr-2" />
-                Télécharger ZIP
-              </>
-            )}
-          </Button>
+            icon={<Archive className="w-4 h-4 mr-2" />}
+            label="Télécharger ZIP"
+          />
         </div>
       </div>
 
-      {/* Indicateur de progression */}
+      {/* Progress bar */}
       {exportProgress !== null && (
         <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
           <div
@@ -175,7 +90,7 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
         </div>
       )}
 
-      {/* Grille des cartes */}
+      {/* Card grid */}
       <div className="grid gap-6 justify-items-center">
         {filteredContributors.map((contributor, index) => (
           <div
@@ -188,18 +103,17 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
               contributor={contributor}
               cardType={cardType}
             />
-            
-            {/* Boutons d'action - toujours visibles */}
+
             <div className="absolute top-2 right-2 flex gap-1">
               <button
-                onClick={() => handleEditCard(contributor)}
+                onClick={() => navigate(`/edit/${contributor.id}`)}
                 className="bg-white hover:bg-accent text-secondary p-2 rounded-full shadow-lg border border-border"
                 title="Modifier cette carte"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
-                onClick={() => handleExportSingle(contributor)}
+                onClick={() => exportSingle(contributor)}
                 disabled={isExporting}
                 className="bg-white hover:bg-accent text-primary p-2 rounded-full shadow-lg border border-border"
                 title="Télécharger cette carte en PDF"
@@ -213,5 +127,29 @@ const CardGallery: React.FC<CardGalleryProps> = ({ contributors, cardType = '2_r
     </div>
   );
 };
+
+/** Reusable export button with progress state */
+const ExportButton: React.FC<{
+  onClick: () => void;
+  disabled: boolean;
+  progress: number | null;
+  className: string;
+  icon: React.ReactNode;
+  label: string;
+}> = ({ onClick, disabled, progress, className, icon, label }) => (
+  <Button onClick={onClick} disabled={disabled} className={className}>
+    {disabled && progress !== null ? (
+      <>
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        {progress}%
+      </>
+    ) : (
+      <>
+        {icon}
+        {label}
+      </>
+    )}
+  </Button>
+);
 
 export default CardGallery;
