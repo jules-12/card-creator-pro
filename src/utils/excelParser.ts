@@ -133,7 +133,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
         const checkTimeout = (): boolean => {
           if (Date.now() - startTime > MAX_PROCESSING_TIME_S * 1000) {
-            clearTimer();
+            
             resolve({
               contributors: [],
               errors: [`Le temps de traitement maximal (${MAX_PROCESSING_TIME_S}s) a été atteint. Veuillez réduire la taille du fichier.`],
