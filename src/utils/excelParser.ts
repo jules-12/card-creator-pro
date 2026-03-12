@@ -351,7 +351,13 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         const uniqueContributors: Contributor[] = [];
         let duplicateCount = 0;
 
-        for (const c of contributors) {
+        for (let i = 0; i < contributors.length; i++) {
+          if (i % 500 === 0) {
+            if (checkTimeout()) return;
+            await yieldToUi();
+          }
+
+          const c = contributors[i];
           const npcKey = c.npc.trim().toLowerCase();
           if (npcKey && npcKey !== '–' && seenNpcs.has(npcKey)) {
             duplicateCount++;
