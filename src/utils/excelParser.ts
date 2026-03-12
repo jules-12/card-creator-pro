@@ -291,8 +291,11 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
         // Parser chaque ligne de données
         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-          // Vérifier le timeout toutes les 500 lignes
-          if ((i - headerRowIndex) % 500 === 0 && checkTimeout()) return;
+          // Vérifier timeout + céder le thread UI régulièrement
+          if ((i - headerRowIndex) % 200 === 0) {
+            if (checkTimeout()) return;
+            await yieldToUi();
+          }
 
           const row = jsonData[i];
 
