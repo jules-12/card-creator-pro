@@ -69,7 +69,7 @@ const findColumnKey = (header: string): string | null => {
 export const MAX_ROWS = 10_000;
 export const MAX_PROCESSING_TIME_S = 30;
 
-export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => void): Promise<ParsedExcelData> => {
+export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -130,23 +130,10 @@ export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => 
 
         // Lancer le timer de traitement
         const startTime = Date.now();
-        let countdownInterval: ReturnType<typeof setInterval> | null = null;
-        if (onCountdown) {
-          onCountdown(MAX_PROCESSING_TIME_S);
-          countdownInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const remaining = MAX_PROCESSING_TIME_S - elapsed;
-            onCountdown(Math.max(0, remaining));
-          }, 1000);
-        }
-
-        const clearTimer = () => {
-          if (countdownInterval) clearInterval(countdownInterval);
-        };
 
         const checkTimeout = (): boolean => {
           if (Date.now() - startTime > MAX_PROCESSING_TIME_S * 1000) {
-            clearTimer();
+            
             resolve({
               contributors: [],
               errors: [`Le temps de traitement maximal (${MAX_PROCESSING_TIME_S}s) a été atteint. Veuillez réduire la taille du fichier.`],
@@ -375,7 +362,7 @@ export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => 
           errors.push(`${duplicateCount} doublon(s) de NPC détecté(s) et ignoré(s)`);
         }
 
-        clearTimer();
+        
         resolve({
           contributors: uniqueContributors,
           errors,

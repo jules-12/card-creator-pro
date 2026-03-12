@@ -26,7 +26,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onDataLoaded, onError }) =>
     setFileName(file.name);
 
     try {
-      const result = await parseExcelFile(file, undefined);
+      const result = await parseExcelFile(file);
 
       if (result.contributors.length === 0) {
         onError(result.errors?.[0] ?? 'Aucune donnée valide trouvée dans le fichier');

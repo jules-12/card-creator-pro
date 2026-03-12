@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import FileImportSection from '@/components/FileImportSection';
 import CardGallery from '@/components/CardGallery';
 import SavedCardsManager from '@/components/SavedCardsManager';
 import { Contributor, CardType } from '@/types/contributor';
-import { generateTestData } from '@/utils/excelParser';
+import { generateTestData, MAX_PROCESSING_TIME_S } from '@/utils/excelParser';
 
 const Index: React.FC = () => {
   const location = useLocation();
@@ -15,7 +15,32 @@ const Index: React.FC = () => {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [cardType, setCardType] = useState<CardType>('2_roues');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<number>(MAX_PROCESSING_TIME_S);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Countdown timer indépendant du parsing (le parsing bloque le thread)
+  useEffect(() => {
+    if (isAnalyzing) {
+      setCountdown(MAX_PROCESSING_TIME_S);
+      countdownRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+    }
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, [isAnalyzing]);
 
   useEffect(() => {
     if (location.state?.updatedCards) {
@@ -36,15 +61,15 @@ const Index: React.FC = () => {
     setError(null);
     setCardType(type);
     setIsAnalyzing(true);
-    setCountdown(null);
+
+    // Laisser React rendre le spinner + compteur avant de lancer le parsing synchrone
+    await new Promise((r) => setTimeout(r, 100));
+
     try {
-      const result = await parseExcelFile(file, (remaining) => {
-        setCountdown(remaining);
-      });
+      const result = await parseExcelFile(file);
       if (result.contributors.length === 0) {
         setError(result.errors?.[0] ?? 'Aucune donnée valide trouvée');
         setIsAnalyzing(false);
-        setCountdown(null);
         return;
       }
       handleDataLoaded(result.contributors);
@@ -56,7 +81,6 @@ const Index: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Erreur de lecture du fichier');
     } finally {
       setIsAnalyzing(false);
-      setCountdown(null);
     }
   };
 
@@ -91,11 +115,9 @@ const Index: React.FC = () => {
           <p className="text-muted-foreground font-medium text-center">
             Le fichier est en cours d'analyse, veuillez patienter…
           </p>
-          {countdown !== null && (
-            <p className="text-sm font-mono text-primary font-bold">
-              Temps restant : {countdown}s
-            </p>
-          )}
+          <p className="text-lg font-mono text-primary font-bold tabular-nums">
+            ⏱ Temps restant : {countdown}s
+          </p>
         </div>
       ) : !hasLoaded ? (
         <FileImportSection
