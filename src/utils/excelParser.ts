@@ -375,6 +375,7 @@ export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => 
           errors.push(`${duplicateCount} doublon(s) de NPC détecté(s) et ignoré(s)`);
         }
 
+        clearTimer();
         resolve({
           contributors: uniqueContributors,
           errors,
