@@ -117,6 +117,46 @@ export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => 
           return;
         }
 
+        // Vérification de la limite de lignes
+        const dataRowCount = jsonData.length - 1; // exclure l'en-tête
+        if (dataRowCount > MAX_ROWS) {
+          resolve({
+            contributors: [],
+            errors: [`Le nombre de lignes du fichier (${dataRowCount.toLocaleString('fr-FR')}) dépasse le nombre maximal autorisé (${MAX_ROWS.toLocaleString('fr-FR')}). Veuillez réduire ce nombre.`],
+            totalRows: dataRowCount,
+          });
+          return;
+        }
+
+        // Lancer le timer de traitement
+        const startTime = Date.now();
+        let countdownInterval: ReturnType<typeof setInterval> | null = null;
+        if (onCountdown) {
+          onCountdown(MAX_PROCESSING_TIME_S);
+          countdownInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = MAX_PROCESSING_TIME_S - elapsed;
+            onCountdown(Math.max(0, remaining));
+          }, 1000);
+        }
+
+        const clearTimer = () => {
+          if (countdownInterval) clearInterval(countdownInterval);
+        };
+
+        const checkTimeout = (): boolean => {
+          if (Date.now() - startTime > MAX_PROCESSING_TIME_S * 1000) {
+            clearTimer();
+            resolve({
+              contributors: [],
+              errors: [`Le temps de traitement maximal (${MAX_PROCESSING_TIME_S}s) a été atteint. Veuillez réduire la taille du fichier.`],
+              totalRows: dataRowCount,
+            });
+            return true;
+          }
+          return false;
+        };
+
         // Détecter automatiquement la ligne d'en-tête
         const maxScanRows = Math.min(10, jsonData.length);
         let headerRowIndex = 0;
