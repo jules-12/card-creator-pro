@@ -1,0 +1,24 @@
+import { cn } from '@/lib/utils';
+
+interface SpinnerProps {
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const sizeClasses = {
+  sm: 'w-5 h-5 border-2',
+  md: 'w-8 h-8 border-4',
+  lg: 'w-12 h-12 border-4',
+} as const;
+
+const Spinner: React.FC<SpinnerProps> = ({ className, size = 'md' }) => (
+  <div
+    className={cn(
+      'rounded-full border-primary border-t-transparent animate-spin',
+      sizeClasses[size],
+      className,
+    )}
+  />
+);
+
+export default Spinner;

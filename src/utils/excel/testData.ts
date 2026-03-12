@@ -1,0 +1,47 @@
+import { Contributor } from '@/types/contributor';
+
+/** Test data for the B2 card preview. */
+export const generateTestData = (): Contributor[] => [
+  {
+    id: 'test-1',
+    npc: 'NPC-2024-001',
+    nom: 'AHOUANDJINOU',
+    prenoms: 'Pierre Marie',
+    telephone: '97 00 11 22',
+    personneContact: 'Marie AHOUANDJINOU',
+    telephoneContact: '96 11 22 33',
+    proprietaire: 'Jean AHOUANDJINOU',
+    telephoneProprietaire: '95 44 55 66',
+    residence: 'Akpakpa',
+    caracteristiquesMoto: 'Honda CG 125',
+    arrondissement: 'Akpakpa',
+  },
+  {
+    id: 'test-2',
+    npc: 'NPC-2024-002',
+    nom: 'HOUNGBEDJI',
+    prenoms: 'Jeanne',
+    telephone: '96 33 44 55',
+    personneContact: '–',
+    telephoneContact: '–',
+    proprietaire: 'Jeanne HOUNGBEDJI',
+    telephoneProprietaire: '96 33 44 55',
+    residence: 'Cadjèhoun',
+    caracteristiquesMoto: 'Bajaj Boxer',
+    arrondissement: 'Cadjèhoun',
+  },
+  {
+    id: 'test-3',
+    npc: 'NPC-2024-003',
+    nom: 'ZINSOU',
+    prenoms: 'Emmanuel',
+    telephone: '95 66 77 88',
+    personneContact: 'Paul ZINSOU',
+    telephoneContact: '94 77 88 99',
+    proprietaire: 'Emmanuel ZINSOU',
+    telephoneProprietaire: '95 66 77 88',
+    residence: 'Fidjrossè',
+    caracteristiquesMoto: 'TVS Apache',
+    arrondissement: 'Fidjrossè',
+  },
+];
