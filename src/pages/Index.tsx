@@ -15,6 +15,7 @@ const Index: React.FC = () => {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [cardType, setCardType] = useState<CardType>('2_roues');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     if (location.state?.updatedCards) {
@@ -35,11 +36,15 @@ const Index: React.FC = () => {
     setError(null);
     setCardType(type);
     setIsAnalyzing(true);
+    setCountdown(null);
     try {
-      const result = await parseExcelFile(file);
+      const result = await parseExcelFile(file, (remaining) => {
+        setCountdown(remaining);
+      });
       if (result.contributors.length === 0) {
         setError(result.errors?.[0] ?? 'Aucune donnée valide trouvée');
         setIsAnalyzing(false);
+        setCountdown(null);
         return;
       }
       handleDataLoaded(result.contributors);
@@ -51,6 +56,7 @@ const Index: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Erreur de lecture du fichier');
     } finally {
       setIsAnalyzing(false);
+      setCountdown(null);
     }
   };
 
@@ -85,6 +91,11 @@ const Index: React.FC = () => {
           <p className="text-muted-foreground font-medium text-center">
             Le fichier est en cours d'analyse, veuillez patienter…
           </p>
+          {countdown !== null && (
+            <p className="text-sm font-mono text-primary font-bold">
+              Temps restant : {countdown}s
+            </p>
+          )}
         </div>
       ) : !hasLoaded ? (
         <FileImportSection

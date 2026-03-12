@@ -66,7 +66,10 @@ const findColumnKey = (header: string): string | null => {
   return null;
 };
 
-export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
+export const MAX_ROWS = 10_000;
+export const MAX_PROCESSING_TIME_S = 30;
+
+export const parseExcelFile = (file: File, onCountdown?: (remaining: number) => void): Promise<ParsedExcelData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -113,6 +116,46 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           });
           return;
         }
+
+        // Vérification de la limite de lignes
+        const dataRowCount = jsonData.length - 1; // exclure l'en-tête
+        if (dataRowCount > MAX_ROWS) {
+          resolve({
+            contributors: [],
+            errors: [`Le nombre de lignes du fichier (${dataRowCount.toLocaleString('fr-FR')}) dépasse le nombre maximal autorisé (${MAX_ROWS.toLocaleString('fr-FR')}). Veuillez réduire ce nombre.`],
+            totalRows: dataRowCount,
+          });
+          return;
+        }
+
+        // Lancer le timer de traitement
+        const startTime = Date.now();
+        let countdownInterval: ReturnType<typeof setInterval> | null = null;
+        if (onCountdown) {
+          onCountdown(MAX_PROCESSING_TIME_S);
+          countdownInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = MAX_PROCESSING_TIME_S - elapsed;
+            onCountdown(Math.max(0, remaining));
+          }, 1000);
+        }
+
+        const clearTimer = () => {
+          if (countdownInterval) clearInterval(countdownInterval);
+        };
+
+        const checkTimeout = (): boolean => {
+          if (Date.now() - startTime > MAX_PROCESSING_TIME_S * 1000) {
+            clearTimer();
+            resolve({
+              contributors: [],
+              errors: [`Le temps de traitement maximal (${MAX_PROCESSING_TIME_S}s) a été atteint. Veuillez réduire la taille du fichier.`],
+              totalRows: dataRowCount,
+            });
+            return true;
+          }
+          return false;
+        };
 
         // Détecter automatiquement la ligne d'en-tête
         const maxScanRows = Math.min(10, jsonData.length);
@@ -259,6 +302,9 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
 
         // Parser chaque ligne de données
         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+          // Vérifier le timeout toutes les 500 lignes
+          if ((i - headerRowIndex) % 500 === 0 && checkTimeout()) return;
+
           const row = jsonData[i];
 
           if (!row || row.every((cell) => cell === undefined || cell === null || String(cell).trim() === '')) {
@@ -329,6 +375,7 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
           errors.push(`${duplicateCount} doublon(s) de NPC détecté(s) et ignoré(s)`);
         }
 
+        clearTimer();
         resolve({
           contributors: uniqueContributors,
           errors,
