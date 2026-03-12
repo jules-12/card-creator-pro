@@ -131,10 +131,6 @@ export const parseExcelFile = (file: File): Promise<ParsedExcelData> => {
         // Lancer le timer de traitement
         const startTime = Date.now();
 
-        const clearTimer = () => {
-          if (countdownInterval) clearInterval(countdownInterval);
-        };
-
         const checkTimeout = (): boolean => {
           if (Date.now() - startTime > MAX_PROCESSING_TIME_S * 1000) {
             clearTimer();
